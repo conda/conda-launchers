@@ -1,0 +1,18 @@
+# disable autofixing PRs, commenting "pre-commit.ci autofix" on a pull request triggers a autofix
+ci:
+    autofix_prs: false
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      # standard end of line/end of file cleanup
+      - id: mixed-line-ending
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+      # ensure syntaxes are valid
+      - id: check-yaml
+        exclude: ^(conda\.)?recipe/meta.yaml
+      # catch git merge/rebase problems
+      - id: check-merge-conflict
+exclude: "^src/.*patch$"
