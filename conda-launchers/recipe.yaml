@@ -1,6 +1,6 @@
 context:
   name: conda-launchers
-  version: "25.0.0"
+  version: "24.7.1"
   build_number: 0
 
 recipe:
