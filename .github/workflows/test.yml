@@ -4,9 +4,7 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+  pull_request_target:
   schedule:
     - cron: '30 6 * * *'
 
@@ -20,7 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build_recipe:
+  conda_build_recipe:
     name: Build conda recipe (${{ matrix.subdir }})
     runs-on: ${{ matrix.os }}
     strategy:
@@ -85,3 +83,50 @@ jobs:
 
           echo "Use this command to try out the build:"
           echo "  conda install -c ${ANACONDA_ORG_CHANNEL}/label/${ANACONDA_ORG_LABEL} conda-launchers"
+
+  rattler_build_recipe:
+    name: Rattler build recipe
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 1
+
+      - name: Setup Pixi
+        uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          cache: true
+
+      - name: Run Build
+        shell: pwsh
+        run: |
+          pixi run build build --recipe-dir conda-launchers `
+            --log-style plain `
+            --skip-existing all `
+            -c conda-forge -c conda-canary/label/dev
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: conda-launchers-builds
+          path: |
+            ./output/noarch/conda-launchers*.conda
+
+      - name: Upload to Anaconda
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          ANACONDA_OWNER: conda-canary
+          ANACONDA_CHANNEL: dev
+          ANACONDA_API_KEY: ${{ secrets.ANACONDA_ORG_CONDA_CANARY_TOKEN }}
+        shell: pwsh
+        run: |
+          if (-not $env:ANACONDA_API_KEY -or $env:ANACONDA_API_KEY -eq '') {
+            Write-Error "ANACONDA_API_KEY is not set."
+            exit 1
+          }
+          foreach ($file in Get-ChildItem -Path "./output/noarch/conda-launchers*.conda") {
+            Write-Host "Uploading $($file.Name)"
+            pixi run build upload anaconda "$file" --log-style plain
+          }

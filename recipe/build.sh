@@ -9,7 +9,7 @@ _ARCH=${target_platform#*-} # keep chunk after dash (e.g. '64' in 'win-64')
 # Build resources file
 test -f resources.rc && rm -f resources.rc
 echo "#include \"winuser.h\""      > resources.rc
-echo "1 RT_MANIFEST manifest.xml" >> resources.rc
+echo "1 RT_MANIFEST launcher.manifest" >> resources.rc
 test -f resources-${_ARCH}.res && rm -f resources-${_ARCH}.res
 windres --input resources.rc --output resources-${_ARCH}.res --output-format=coff
 
