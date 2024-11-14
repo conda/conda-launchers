@@ -16,22 +16,33 @@ windres --input resources.rc --output resources-${_ARCH}.res --output-format=cof
 # Compile launchers
 for _TYPE in cli gui; do
   if [[ ${_TYPE} == cli ]]; then
-    CPPFLAGS=
-    LDFLAGS=
+    if [[ "${c_compiler}" == "gcc" ]]; then
+      CPPFLAGS=
+      LDFLAGS=
+    else
+      CPPFLAGS=
+      LDFLAGS="-SUBSYSTEM:CONSOLE"
+    fi
   else
-    CPPFLAGS="-D_WINDOWS -mwindows"
-    LDFLAGS="-mwindows"
+    if [[ "${c_compiler}" == "gcc" ]]; then
+      CPPFLAGS="-D_WINDOWS -mwindows"
+      LDFLAGS="-mwindows"
+    else
+      CPPFLAGS="-D_WINDOWS"
+      LDFLAGS="-SUBSYSTEM:WINDOWS"
+    fi
   fi
 
   # You *could* use MSVC 2008 here, but you'd end up with much larger (~230k) executables.
-  # cl.exe -opt:nowin98 -D NDEBUG -D "GUI=0" -D "WIN32_LEAN_AND_MEAN" -ZI -Gy -MT -MERGE launcher.c -Os -link -MACHINE:x64 -SUBSYSTEM:CONSOLE version.lib advapi32.lib shell32.lib
-  ${BUILD_PREFIX}/Library/mingw-w64/bin/gcc \
-    -O2 -DSCRIPT_WRAPPER -DUNICODE -D_UNICODE -DMINGW_HAS_SECURE_API -DMAXINT=INT_MAX ${CPPFLAGS} \
-    ${SRC_DIR}/launcher.c -c -o ${_TYPE}-${_ARCH}.o
+  if [[ "${_ARCH}" == "arm64" && "${c_compiler}" == "vc" ]]; then
+    cl.exe -opt:nowin98 -D NDEBUG -D "WIN32_LEAN_AND_MEAN" ${CPPFLAGS} -ZI -Gy -MT -MERGE launcher.c -Os -link -MACHINE:ARM64 ${LDFLAGS} resources-${_ARCH}.res version.lib advapi32.lib shell32.lib -out:${_TYPE}-${_ARCH}.exe
+  else
+    ${CC} -O2 -DSCRIPT_WRAPPER -DUNICODE -D_UNICODE -DMINGW_HAS_SECURE_API -DMAXINT=INT_MAX ${CPPFLAGS} \
+      ${SRC_DIR}/launcher.c -c -o ${_TYPE}-${_ARCH}.o
 
-  ${BUILD_PREFIX}/Library/mingw-w64/bin/gcc \
-    -Wl,-s --static -static-libgcc -municode ${LDFLAGS} \
-    ${_TYPE}-${_ARCH}.o resources-${_ARCH}.res -o ${_TYPE}-${_ARCH}.exe
+    ${CC} -Wl,-s --static -static-libgcc -municode ${LDFLAGS} \
+      ${_TYPE}-${_ARCH}.o resources-${_ARCH}.res -o ${_TYPE}-${_ARCH}.exe
+  fi
 
 done
 

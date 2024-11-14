@@ -16,16 +16,21 @@ source:
     folder: cpython-LICENSE
 
 build:
-  number: 0
+  number: 1
   skip: true  # [not win]
   ignore_run_exports_from:
-    - {{ compiler("m2w64_c") }}
+    - {{ compiler("c") }}
+    - {{ stdlib("c") }}
 
 requirements:
   build:
-    - {{ compiler("m2w64_c") }}
-    - {{ stdlib("m2w64_c") }}
-    - posix
+    - {{ compiler("c") }}
+    - {{ stdlib("c") }}
+    # For bash and friends
+    - m2-base
+    # for windres
+    - binutils
+  host:
   run:
     # Any Python works as `%PREFIX%/python.exe` is present
     # cli-64.exe (and friends) will look for it as `../python.exe`, so that's
