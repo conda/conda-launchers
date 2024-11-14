@@ -13,6 +13,8 @@ echo "1 RT_MANIFEST manifest.xml" >> resources.rc
 test -f resources-${_ARCH}.res && rm -f resources-${_ARCH}.res
 windres --input resources.rc --output resources-${_ARCH}.res --output-format=coff
 
+ls -alh .
+
 # Compile launchers
 for _TYPE in cli gui; do
   if [[ ${_TYPE} == cli ]]; then
