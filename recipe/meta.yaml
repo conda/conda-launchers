@@ -37,11 +37,11 @@ requirements:
 
 test:
   commands:
-    - if not exist "%PREFIX%\\Scripts\\cli-64.exe" exit 1
-    - if not exist "%PREFIX%\\Scripts\\cli-64-script.py" exit 1
-    - CALL "%PREFIX%\\Scripts\\cli-64.exe"
-    - if not exist "%PREFIX%\\Scripts\\gui-64.exe" exit 1
-    - if not exist "%PREFIX%\\Scripts\\gui-64-script.py" exit 1
+    - if not exist "%PREFIX%\\Scripts\\cli-{{ target_platform.split("-")[-1] }}.exe" exit 1
+    - if not exist "%PREFIX%\\Scripts\\cli-{{ target_platform.split("-")[-1] }}-script.py" exit 1
+    - if not exist "%PREFIX%\\Scripts\\gui-{{ target_platform.split("-")[-1] }}.exe" exit 1
+    - if not exist "%PREFIX%\\Scripts\\gui-{{ target_platform.split("-")[-1] }}-script.py" exit 1
+    - CALL "%PREFIX%\\Scripts\\cli-{{ target_platform.split("-")[-1] }}.exe"                          # [x86_64]
 
 about:
   home: https://github.com/conda/conda-build
