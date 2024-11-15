@@ -66,6 +66,9 @@ pub fn build(b: *std.Build) void {
     if (target.result.abi == .gnu) {
         // NOTE: This requires Zig version 0.12.0-dev.3493+3661133f9 or later
         exe.mingw_unicode_entry_point = true;
+    } else {
+        exe.linkSystemLibrary("advapi32");
+        exe.linkSystemLibrary("shell32");
     }
 
     b.installArtifact(exe);
