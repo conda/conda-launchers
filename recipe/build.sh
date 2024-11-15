@@ -21,7 +21,9 @@ test -f resources-${_ARCH}.res && rm -f resources-${_ARCH}.res
 if [[ "${c_compiler}" == "gcc" ]]; then
   ${WINDRES:-windres} --input resources.rc --output resources-${_ARCH}.res --output-format=coff -v
 else
-  rc.exe "/fo" resources-${_ARCH}.res resources.rc
+  which rc.exe
+  rc.exe resources.rc
+  mv resources.res resources-${_ARCH}.res
 fi
 
 ls -alh .
