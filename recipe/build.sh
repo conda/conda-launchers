@@ -48,7 +48,12 @@ for _TYPE in cli gui; do
     fi
   fi
 
-  # You *could* use MSVC 2008 here, but you'd end up with much larger (~230k) executables.
+  # An executable with mingw and `static-libgcc` is 42K
+  # An executable with vcruntime statically linked (-MT) in is 920K
+  # An executable with vcruntime dynamically linked (-MD) in is 84K
+  # For arm64, since we don't have mingw, we are going to use -MD
+  #  to reduce the binary size. Let's hope that all arm64 machines
+  #  have vcruntime140.dll installed.
   if [[ "${c_compiler}" == "vs" ]]; then
     cl.exe -D NDEBUG -D "WIN32_LEAN_AND_MEAN" ${CPPFLAGS} -ZI -Gy -MD launcher.c -Os -link -MACHINE:${_CL_MACHINE} ${LDFLAGS} resources-${_ARCH}.res user32.lib version.lib advapi32.lib shell32.lib -out:${_TYPE}-${_ARCH}.exe
   else
