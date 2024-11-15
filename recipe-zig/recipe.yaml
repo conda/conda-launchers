@@ -53,6 +53,8 @@ outputs:
           - call "%PREFIX%\Scripts\cli-64.exe"
           - if not exist %PREFIX%\Scripts\cli-arm64.exe exit 1
           - if not exist %PREFIX%\Scripts\cli-arm64-script.py exit 1
+          - if: win and arm64
+            then: call "%PREFIX%\Scripts\cli-arm64.exe"
           # gui
           - if not exist %PREFIX%\Scripts\gui-32.exe exit 1
           - if not exist %PREFIX%\Scripts\gui-32-script.pyw exit 1
@@ -62,6 +64,8 @@ outputs:
           - call "%PREFIX%\Scripts\gui-64.exe"
           - if not exist %PREFIX%\Scripts\gui-arm64.exe exit 1
           - if not exist %PREFIX%\Scripts\gui-arm64-script.pyw exit 1
+          - if: win and arm64
+            then: call "%PREFIX%\Scripts\gui-arm64.exe"
 
   - package:
       name: ${{ name }}_win-32

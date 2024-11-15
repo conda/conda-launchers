@@ -23,9 +23,10 @@ if %PKG_NAME% == conda-launchers_win-arm64 (
 
 @rem build cli launcher
 zig build -Doptimize=ReleaseSmall -Dtarget=%ZIG_TARGET% -Dgui=false --prefix-exe-dir "%PREFIX%\Scripts"
+if %ERRORLEVEL% neq 0 exit 1
+
 @rem build gui launcher
 zig build -Doptimize=ReleaseSmall -Dtarget=%ZIG_TARGET% -Dgui=true --prefix-exe-dir "%PREFIX%\Scripts"
-
 if %ERRORLEVEL% neq 0 exit 1
 
 @rem install launcher scripts
@@ -33,6 +34,8 @@ cd "%PREFIX%\Scripts"
 (
 echo print^("cli-%EXE_TARGET%.exe successfully launched the accompanying Python script"^)
 )> "cli-%EXE_TARGET%-script.py"
+
+if %ERRORLEVEL% neq 0 exit 1
 
 (
 echo import tkinter as tk

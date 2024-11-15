@@ -7,7 +7,8 @@ platforms = ["win-64"]
 license = "BSD-3-Clause"
 
 [tasks]
-build = "rattler-build"
+build = "rattler-build build --recipe recipe-zig --log-style plain --skip-existing all -c conda-forge"
+upload = "rattler-build upload anaconda --log-style plain"
 
 [dependencies]
 rattler-build = ">=0.29.0,<0.30"

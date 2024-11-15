@@ -102,16 +102,12 @@ jobs:
 
       - name: Run Build
         shell: pwsh
-        run: |
-          pixi run build build --recipe-dir conda-launchers `
-            --log-style plain `
-            --skip-existing all `
-            -c conda-forge -c conda-canary/label/dev
+        run: pixi run build
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: conda-launchers-builds
+          name: conda-launchers-zig-builds
           path: |
             ./output/noarch/conda-launchers*.conda
 
@@ -119,7 +115,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           ANACONDA_OWNER: conda-canary
-          ANACONDA_CHANNEL: dev
+          ANACONDA_CHANNEL: conda-launchers-zig_dev
           ANACONDA_API_KEY: ${{ secrets.ANACONDA_ORG_CONDA_CANARY_TOKEN }}
         shell: pwsh
         run: |
@@ -129,5 +125,5 @@ jobs:
           }
           foreach ($file in Get-ChildItem -Path "./output/noarch/conda-launchers*.conda") {
             Write-Host "Uploading $($file.Name)"
-            pixi run build upload anaconda "$file" --log-style plain
+            pixi run upload "$file"
           }
