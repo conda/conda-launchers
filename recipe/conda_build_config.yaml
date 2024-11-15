@@ -1,7 +1,0 @@
-c_compiler:
-- gcc   # [x86_64]
-- vc    # [arm64]
-
-c_stdlib:
-- m2w64-sysroot  # [x86_64]
-- vc             # [arm64]

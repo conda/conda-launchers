@@ -1,2 +1,6 @@
 target_platform:
 - win-arm64
+c_compiler:
+- vs
+c_stdlib:
+- vs
