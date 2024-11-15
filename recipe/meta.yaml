@@ -28,8 +28,6 @@ requirements:
     - {{ stdlib("c") }}
     # For bash and friends
     - m2-base
-    # for windres
-    - binutils_win-64
   host:
   run:
     # Any Python works as `%PREFIX%/python.exe` is present

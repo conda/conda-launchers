@@ -17,8 +17,12 @@ test -f resources.rc && rm -f resources.rc
 echo "#include \"winuser.h\""      > resources.rc
 echo "1 RT_MANIFEST manifest.xml" >> resources.rc
 test -f resources-${_ARCH}.res && rm -f resources-${_ARCH}.res
-ls -alh .
-${WINDRES:-windres} --input resources.rc --output resources-${_ARCH}.res --output-format=coff -v
+
+if [[ "${c_compiler}" == "gcc" ]]; then
+  ${WINDRES:-windres} --input resources.rc --output resources-${_ARCH}.res --output-format=coff -v
+else
+  rc.exe -fo:resources-${_ARCH}.res resources.rc
+fi
 
 ls -alh .
 
@@ -44,7 +48,7 @@ for _TYPE in cli gui; do
 
   # You *could* use MSVC 2008 here, but you'd end up with much larger (~230k) executables.
   if [[ "${c_compiler}" == "vs" ]]; then
-    cl.exe -opt:nowin98 -D NDEBUG -D "WIN32_LEAN_AND_MEAN" ${CPPFLAGS} -ZI -Gy -MT -MERGE launcher.c -Os -link -MACHINE:${_CL_MACHINE} ${LDFLAGS} resources-${_ARCH}.res version.lib advapi32.lib shell32.lib -out:${_TYPE}-${_ARCH}.exe
+    cl.exe -opt:nowin98 -D NDEBUG -D "WIN32_LEAN_AND_MEAN" ${CPPFLAGS} -ZI -Gy -MT launcher.c -Os -link -MACHINE:${_CL_MACHINE} ${LDFLAGS} resources-${_ARCH}.res version.lib advapi32.lib shell32.lib -out:${_TYPE}-${_ARCH}.exe
   else
     ${CC} -O2 -DSCRIPT_WRAPPER -DUNICODE -D_UNICODE -DMINGW_HAS_SECURE_API -DMAXINT=INT_MAX ${CPPFLAGS} \
       ${SRC_DIR}/launcher.c -c -o ${_TYPE}-${_ARCH}.o
