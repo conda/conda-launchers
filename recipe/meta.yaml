@@ -1,5 +1,8 @@
 {% set name = "conda-launchers" %}
 {% set version = "24.7.1" %}
+{% if target_platform is not defined %}
+{% set target_platform = "win-64" %}
+{% endif %}
 
 package:
   name: {{ name|lower }}
