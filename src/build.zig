@@ -69,6 +69,9 @@ pub fn build(b: *std.Build) void {
     } else {
         exe.linkSystemLibrary("advapi32");
         exe.linkSystemLibrary("shell32");
+        if (gui) {
+            exe.linkSystemLibrary("user32");
+        }
     }
 
     b.installArtifact(exe);
