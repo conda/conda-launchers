@@ -29,9 +29,8 @@ jobs:
         include:
           - os: windows-latest
             subdir: win-64
-        # TODO:
-        #   - os: windows-latest
-        #     subdir: win-arm64
+          - os: windows-latest
+            subdir: win-arm64
     env:
       PYTHONUNBUFFERED: "1"
     steps:
@@ -46,15 +45,11 @@ jobs:
         shell: bash -el {0}
         run: conda install -y "conda-build!=3.28.0,!=3.28.1" anaconda-client
 
-      - name: Fetch pinnings
-        shell: bash -el {0}
-        run: |
-          curl -LO https://raw.githubusercontent.com/conda-forge/conda-forge-pinning-feedstock/main/recipe/conda_build_config.yaml
       - name: Build recipe
         shell: bash -el {0}
         env:
           CONDA_BLD_PATH: ${{ runner.temp }}/bld
-        run: conda build recipe --override-channels -c conda-forge -m conda_build_config.yaml
+        run: conda build recipe --override-channels -c conda-forge -e .ci_support/${{ matrix.subdir }}.yaml
 
       - uses: actions/upload-artifact@v4
         if: github.event_name == 'pull_request'
