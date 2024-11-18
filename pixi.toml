@@ -1,0 +1,17 @@
+[project]
+name = "conda-launchers"
+version = "0.0.0"
+description = "Conda launchers for Windows"
+channels = ["conda-forge"]
+platforms = ["win-64"]
+license = "BSD-3-Clause"
+
+[tasks]
+build = "rattler-build build --recipe recipe-zig --log-style plain --skip-existing all -c conda-forge"
+upload = "rattler-build upload anaconda --log-style plain"
+
+[dependencies]
+rattler-build = ">=0.29.0,<0.30"
+
+[target.win-64.dependencies]
+m2-patch = ">=2.7.6.2,<3"
