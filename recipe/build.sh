@@ -51,11 +51,12 @@ for _TYPE in cli gui; do
   # An executable with mingw and `static-libgcc` is 42K
   # An executable with vcruntime statically linked (-MT) in is 920K
   # An executable with vcruntime dynamically linked (-MD) in is 84K
-  # For arm64, since we don't have mingw, we are going to use -MD
-  #  to reduce the binary size. Let's hope that all arm64 machines
-  #  have vcruntime140.dll installed.
+  # For arm64, since we don't have mingw, we are going to use -MT
+  #  since -MD needs vcruntime140.dll installed and the binaries need
+  #  to be run from Scripts which does not have vcruntime140.dll.
+  #  Also we cannot assume that vcruntime140.dll is found in the system.
   if [[ "${c_compiler}" == "vs" ]]; then
-    cl.exe -D NDEBUG -D "WIN32_LEAN_AND_MEAN" ${CPPFLAGS} -ZI -Gy -MD launcher.c -Os -link -MACHINE:${_CL_MACHINE} ${LDFLAGS} resources-${_ARCH}.res user32.lib version.lib advapi32.lib shell32.lib -out:${_TYPE}-${_ARCH}.exe
+    cl.exe -D NDEBUG -D "WIN32_LEAN_AND_MEAN" ${CPPFLAGS} -ZI -Gy -MT launcher.c -Os -link -MACHINE:${_CL_MACHINE} ${LDFLAGS} resources-${_ARCH}.res user32.lib version.lib advapi32.lib shell32.lib -out:${_TYPE}-${_ARCH}.exe
   else
     ${CC} -O2 -DSCRIPT_WRAPPER -DUNICODE -D_UNICODE -DMINGW_HAS_SECURE_API -DMAXINT=INT_MAX ${CPPFLAGS} \
       ${SRC_DIR}/launcher.c -c -o ${_TYPE}-${_ARCH}.o
