@@ -109,9 +109,10 @@ jobs:
         with:
           cache: true
 
-      - name: Run Build
+      - name: Pixi info
         shell: pwsh
         run: |
+          pixi info
           pixi list
 
       - name: Run Build
