@@ -58,7 +58,7 @@ jobs:
         run: |
           conda build recipe \
             --override-channels \
-            -c defaults \
+            -c conda-forge \
             -e .ci_support/${{ matrix.subdir }}.yaml \
             --extra-meta \
               flow_run_id="github_$GITHUB_RUN_ID" \
