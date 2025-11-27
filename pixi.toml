@@ -1,4 +1,4 @@
-[project]
+[workspace]
 name = "conda-launchers"
 version = "0.0.0"
 description = "Conda launchers for Windows"
