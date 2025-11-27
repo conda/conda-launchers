@@ -1,7 +1,7 @@
 context:
   name: conda-launchers
   version: "24.7.1"
-  build_number: 0
+  build_number: 2
 
 recipe:
   name: ${{ name|lower }}
@@ -155,3 +155,4 @@ about:
 extra:
   recipe-maintainers:
     - chawyehsu
+    - jaimergp
