@@ -104,9 +104,9 @@ jobs:
       - name: Run Build
         shell: pwsh
         run: |
-          pixi run build \
-            --extra-meta flow_run_id="github_$GITHUB_RUN_ID" \
-            --extra-meta remote_url="https://github.com/$GITHUB_REPOSITORY" \
+          pixi run build `
+            --extra-meta flow_run_id="github_$GITHUB_RUN_ID" `
+            --extra-meta remote_url="https://github.com/$GITHUB_REPOSITORY" `
             --extra-meta sha="$GITHUB_SHA"
 
       - name: Upload Artifacts
