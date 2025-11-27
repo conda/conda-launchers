@@ -42,7 +42,7 @@ jobs:
       - name: Install dependencies
         shell: bash -el {0}
         run: conda install -y --override-channels -c defaults "conda-build!=3.28.0,!=3.28.1" anaconda-client
-      
+
       - name: conda info
         shell: bash -el {0}
         run: |
