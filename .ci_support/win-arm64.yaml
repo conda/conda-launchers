@@ -1,5 +1,3 @@
-channel_sources:
-- defaults
 target_platform:
 - win-arm64
 c_compiler:
