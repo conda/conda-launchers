@@ -7,8 +7,6 @@ on:
   pull_request:
     branches:
       - main
-  schedule:
-    - cron: '30 6 * * *'
 
 concurrency:
   # Concurrency group that uses the workflow name and PR number if available
@@ -43,13 +41,13 @@ jobs:
 
       - name: Install dependencies
         shell: bash -el {0}
-        run: conda install -y "conda-build!=3.28.0,!=3.28.1" anaconda-client
+        run: conda install -y --override-channels -c defaults "conda-build!=3.28.0,!=3.28.1" anaconda-client
 
       - name: Build recipe
         shell: bash -el {0}
         env:
           CONDA_BLD_PATH: ${{ runner.temp }}/bld
-        run: conda build recipe --override-channels -c conda-forge -e .ci_support/${{ matrix.subdir }}.yaml
+        run: conda build recipe --override-channels -c defaults -e .ci_support/${{ matrix.subdir }}.yaml
 
       - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         if: github.event_name == 'pull_request'
@@ -64,7 +62,7 @@ jobs:
           CONDA_BLD_PATH: ${{ runner.temp }}/bld
           ANACONDA_ORG_TOKEN: ${{ secrets.ANACONDA_ORG_CONDA_CANARY_TOKEN }}
           ANACONDA_ORG_CHANNEL: conda-canary
-          ANACONDA_ORG_LABEL: dev
+          ANACONDA_ORG_LABEL: conda-launchers_dev
         run: |
           anaconda \
             --token="${ANACONDA_ORG_TOKEN}" \
