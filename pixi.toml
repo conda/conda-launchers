@@ -1,6 +1,6 @@
-[project]
+[workspace]
 name = "conda-launchers"
-version = "0.0.0"
+version = "0.1.0"
 description = "Conda launchers for Windows"
 channels = ["conda-forge"]
 platforms = ["win-64"]

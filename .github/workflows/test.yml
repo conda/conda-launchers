@@ -7,8 +7,6 @@ on:
   pull_request:
     branches:
       - main
-  schedule:
-    - cron: '30 6 * * *'
 
 concurrency:
   # Concurrency group that uses the workflow name and PR number if available
@@ -34,8 +32,8 @@ jobs:
     env:
       PYTHONUNBUFFERED: "1"
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-      - uses: conda-incubator/setup-miniconda@v3
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: conda-incubator/setup-miniconda@835234971496cad1653abb28a638a281cf32541f # v3.2.0
         with:
           auto-activate-base: true
           activate-environment: ""
@@ -43,15 +41,31 @@ jobs:
 
       - name: Install dependencies
         shell: bash -el {0}
-        run: conda install -y "conda-build!=3.28.0,!=3.28.1" anaconda-client
+        run: conda install -y --override-channels -c defaults "conda-build!=3.28.0,!=3.28.1" anaconda-client
+
+      - name: conda info
+        shell: bash -el {0}
+        run: |
+          set -x
+          conda info
+          conda config --show-sources
+          conda list
 
       - name: Build recipe
         shell: bash -el {0}
         env:
           CONDA_BLD_PATH: ${{ runner.temp }}/bld
-        run: conda build recipe --override-channels -c conda-forge -e .ci_support/${{ matrix.subdir }}.yaml
+        run: |
+          conda build recipe \
+            --override-channels \
+            -c conda-forge \
+            -e .ci_support/${{ matrix.subdir }}.yaml \
+            --extra-meta \
+              flow_run_id="github_$GITHUB_RUN_ID" \
+              remote_url="https://github.com/$GITHUB_REPOSITORY" \
+              sha="$GITHUB_SHA"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         if: github.event_name == 'pull_request'
         with:
           name: conda-launchers-${{ matrix.subdir }}
@@ -64,7 +78,7 @@ jobs:
           CONDA_BLD_PATH: ${{ runner.temp }}/bld
           ANACONDA_ORG_TOKEN: ${{ secrets.ANACONDA_ORG_CONDA_CANARY_TOKEN }}
           ANACONDA_ORG_CHANNEL: conda-canary
-          ANACONDA_ORG_LABEL: dev
+          ANACONDA_ORG_LABEL: conda-launchers_dev
         run: |
           anaconda \
             --token="${ANACONDA_ORG_TOKEN}" \
@@ -86,21 +100,31 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout Source
-        uses: actions/checkout@v4
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           fetch-depth: 1
 
       - name: Setup Pixi
-        uses: prefix-dev/setup-pixi@v0.8.1
+        uses: prefix-dev/setup-pixi@82d477f15f3a381dbcc8adc1206ce643fe110fb7 # v0.9.3
         with:
           cache: true
 
+      - name: Pixi info
+        shell: pwsh
+        run: |
+          pixi info
+          pixi list
+
       - name: Run Build
         shell: pwsh
-        run: pixi run build
+        run: |
+          pixi run build `
+            --extra-meta flow_run_id="github_$GITHUB_RUN_ID" `
+            --extra-meta remote_url="https://github.com/$GITHUB_REPOSITORY" `
+            --extra-meta sha="$GITHUB_SHA"
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: conda-launchers-zig-builds
           path: |
