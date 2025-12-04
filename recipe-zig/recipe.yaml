@@ -75,7 +75,7 @@ outputs:
 
     requirements:
       build:
-        - zig ==0.13.0
+        - zig >=0.14.0,<0.15.2
 
       run:
         - python
@@ -99,7 +99,7 @@ outputs:
 
     requirements:
       build:
-        - zig ==0.13.0
+        - zig >=0.14.0,<0.15.2
 
       run:
         - python
@@ -123,7 +123,7 @@ outputs:
 
     requirements:
       build:
-        - zig ==0.13.0
+        - zig >=0.14.0,<0.15.2
 
       run:
         - python
