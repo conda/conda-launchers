@@ -166,3 +166,6 @@ cython_debug/
 .pixi/
 # rattler-build output
 output/
+
+# Zig
+.zig-cache/
