@@ -21,7 +21,7 @@ source:
 build:
   number: ${{ build_number }}
   skip:
-    # - unix
+    - unix
 
 outputs:
   - package:
@@ -75,7 +75,8 @@ outputs:
     build:
       noarch: generic
       string: ${{ hash }}_${{ c_compiler }}_${{ build_number }}
-      script: ${{ 'build-zig.bat' if c_compiler == 'zig' else 'build-sh.bat' }}
+      script:
+        file: ${{ 'build-zig.bat' if c_compiler == 'zig' else 'build-sh.bat' }}
 
       variant:
         down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs2022' else 0 }}
@@ -110,7 +111,8 @@ outputs:
     build:
       noarch: generic
       string: ${{ hash }}_${{ c_compiler }}_${{ build_number }}
-      script: ${{ 'build-zig.bat' if c_compiler == 'zig' else 'build-sh.bat' }}
+      script:
+        file: ${{ 'build-zig.bat' if c_compiler == 'zig' else 'build-sh.bat' }}
       variant:
         down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs2022' else 0 }}
 
@@ -144,7 +146,8 @@ outputs:
     build:
       noarch: generic
       string: ${{ hash }}_${{ c_compiler }}_${{ build_number }}
-      script: ${{ 'build-zig.bat' if c_compiler == 'zig' else 'build-sh.bat' }}
+      script:
+        file: ${{ 'build-zig.bat' if c_compiler == 'zig' else 'build-sh.bat' }}
       variant:
         down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs2022' else 0 }}
 
