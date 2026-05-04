@@ -7,9 +7,11 @@ set -euxo pipefail
 _SUBDIR=${PKG_NAME#*_}  # subdir stored in package name after underscore
 _ARCH=${_SUBDIR#*-}  # keep chunk after dash (e.g. '64' in 'win-64')
 
-if [[ "${_ARCH}" == "win-64" ]]; then
+if [[ "${_ARCH}" == "32" ]]; then
+  _CL_MACHINE=x86
+elif [[ "${_ARCH}" == "64" ]]; then
   _CL_MACHINE=x64
-elif [[ "${_ARCH}" == "win-arm64" ]]; then
+elif [[ "${_ARCH}" == "arm64" ]]; then
   _CL_MACHINE=ARM64
 fi
 

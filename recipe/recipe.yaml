@@ -32,25 +32,31 @@ outputs:
       noarch: generic
       string: ${{ hash }}_${{ c_compiler }}_${{ build_number }}
       variant:
-        down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs2022' else 0 }}
+        down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs' else 0 }}
 
     requirements:
       run:
-        - ${{ pin_subpackage('conda-launchers_win-32', exact=True) }}
+        - if: c_compiler != 'vs'
+          then:
+            - ${{ pin_subpackage('conda-launchers_win-32', exact=True) }}
         - ${{ pin_subpackage('conda-launchers_win-64', exact=True) }}
         - ${{ pin_subpackage('conda-launchers_win-arm64', exact=True) }}
 
     tests:
       - requirements:
           run:
-            - ${{ pin_subpackage('conda-launchers_win-32', exact=True) }}
+            - if: c_compiler != 'vs'
+              then:
+                - ${{ pin_subpackage('conda-launchers_win-32', exact=True) }}
             - ${{ pin_subpackage('conda-launchers_win-64', exact=True) }}
             - ${{ pin_subpackage('conda-launchers_win-arm64', exact=True) }}
         script:
           # cli
-          - if not exist %PREFIX%\Scripts\cli-32.exe exit 1
-          - if not exist %PREFIX%\Scripts\cli-32-script.py exit 1
-          - call "%PREFIX%\Scripts\cli-32.exe"
+          - if: c_compiler != 'vs'
+            then:
+              - if not exist %PREFIX%\Scripts\cli-32.exe exit 1
+              - if not exist %PREFIX%\Scripts\cli-32-script.py exit 1
+              - call "%PREFIX%\Scripts\cli-32.exe"
           - if not exist %PREFIX%\Scripts\cli-64.exe exit 1
           - if not exist %PREFIX%\Scripts\cli-64-script.py exit 1
           - call "%PREFIX%\Scripts\cli-64.exe"
@@ -59,9 +65,11 @@ outputs:
           - if: win and arm64
             then: call "%PREFIX%\Scripts\cli-arm64.exe"
           # gui
-          - if not exist %PREFIX%\Scripts\gui-32.exe exit 1
-          - if not exist %PREFIX%\Scripts\gui-32-script.pyw exit 1
-          - call "%PREFIX%\Scripts\gui-32.exe"
+          - if: c_compiler != 'vs'
+            then:
+              - if not exist %PREFIX%\Scripts\gui-32.exe exit 1
+              - if not exist %PREFIX%\Scripts\gui-32-script.pyw exit 1
+              - call "%PREFIX%\Scripts\gui-32.exe"
           - if not exist %PREFIX%\Scripts\gui-64.exe exit 1
           - if not exist %PREFIX%\Scripts\gui-64-script.pyw exit 1
           - call "%PREFIX%\Scripts\gui-64.exe"
@@ -74,21 +82,23 @@ outputs:
       name: conda-launchers_win-32
 
     build:
+      skip:
+        - c_compiler == 'vs'
       noarch: generic
       string: ${{ hash }}_${{ c_compiler }}_${{ build_number }}
       script:
         file: ${{ 'build-zig.bat' if c_compiler == 'zig' else 'build-sh.bat' }}
 
       variant:
-        down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs2022' else 0 }}
+        down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs' else 0 }}
 
     requirements:
       ignore_run_exports:
         from_package:
-          - ${{ compiler("c") }}
+          - ${{ c_compiler }}_win-32
           - ${{ stdlib("c") }}
       build:
-        - ${{ compiler("c") }}
+        - ${{ c_compiler }}_win-32
         - ${{ stdlib("c") }}
         - m2-patch
 
@@ -115,15 +125,15 @@ outputs:
       script:
         file: ${{ 'build-zig.bat' if c_compiler == 'zig' else 'build-sh.bat' }}
       variant:
-        down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs2022' else 0 }}
+        down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs' else 0 }}
 
     requirements:
       ignore_run_exports:
         from_package:
-          - ${{ compiler("c") }}
+          - ${{ c_compiler }}_win-64
           - ${{ stdlib("c") }}
       build:
-        - ${{ compiler("c") }}
+        - ${{ c_compiler }}_win-64
         - ${{ stdlib("c") }}
         - m2-patch
 
@@ -150,15 +160,15 @@ outputs:
       script:
         file: ${{ 'build-zig.bat' if c_compiler == 'zig' else 'build-sh.bat' }}
       variant:
-        down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs2022' else 0 }}
+        down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs' else 0 }}
 
     requirements:
       ignore_run_exports:
         from_package:
-          - ${{ compiler("c") }}
+          - ${{ c_compiler }}_win-arm64
           - ${{ stdlib("c") }}
       build:
-        - ${{ compiler("c") }}
+        - ${{ c_compiler }}_win-arm64
         - ${{ stdlib("c") }}
         - m2-patch
 
