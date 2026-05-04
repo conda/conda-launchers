@@ -103,11 +103,11 @@ jobs:
           --extra-meta remote_url="https://github.com/$GITHUB_REPOSITORY" `
           --extra-meta sha="$GITHUB_SHA"
 
-      # - uses: fawazahmed0/action-debug-vscode@main
-      #   if: failure()
-      #   timeout-minutes: 60
-      #   with:
-      #     token: ${{ secrets.DEBUG_TOKEN }}
+      - uses: fawazahmed0/action-debug-vscode@main
+        if: failure()
+        timeout-minutes: 60
+        with:
+          token: ${{ secrets.DEBUG_TOKEN }}
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
