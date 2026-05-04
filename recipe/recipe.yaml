@@ -70,7 +70,9 @@ about:
     executable is used to proxy the call because shebangs do not work on Windows.
     This is achieved by the launchers (or called shims).
   license: Python-2.0 AND BSD-3-Clause
-  license_file: cpython-LICENSE
+  license_file:
+    - cpython-LICENSE
+    - LICENSE
   repository: https://github.com/conda/conda-launchers
 
 extra:
