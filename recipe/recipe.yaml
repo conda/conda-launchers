@@ -11,8 +11,9 @@ source:
   - url: https://raw.githubusercontent.com/python/cpython/3.7/PC/launcher.c
     sha256: a3167e5908cefa942f63e0de5c6ec7a929e8ca82a382537ab8292e5aaa82ca2e
     file_name: launcher.c.orig
-    patches:
-      - ../src/cpython-launcher-c-mods-for-setuptools.3.7.patch
+    # BUG in rattler-build, need to patch manually
+    # patches:
+    #   - ../src/cpython-launcher-c-mods-for-setuptools.3.7.patch
   - url: https://raw.githubusercontent.com/python/cpython/3.7/LICENSE
     sha256: 96e4f59524cde5af4a2ea837ef5e52b65e51f1f999825fd8a9ec3b444cb82aea
     file_name: cpython-LICENSE
@@ -87,9 +88,7 @@ outputs:
       build:
         - ${{ compiler("c") }}
         - ${{ stdlib("c") }}
-        - if: c_compiler != 'zig'
-          then:
-            - m2-base
+        - m2-patch
 
       run:
         - python
@@ -123,9 +122,7 @@ outputs:
       build:
         - ${{ compiler("c") }}
         - ${{ stdlib("c") }}
-        - if: c_compiler != 'zig'
-          then:
-            - m2-base
+        - m2-patch
 
       run:
         - python
@@ -159,9 +156,7 @@ outputs:
       build:
         - ${{ compiler("c") }}
         - ${{ stdlib("c") }}
-        - if: c_compiler != 'zig'
-          then:
-            - m2-base
+        - m2-patch
 
       run:
         - python
