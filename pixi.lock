@@ -3,46 +3,16 @@ environments:
   default:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
+    options:
+      pypi-prerelease-mode: if-necessary-or-explicit
     packages:
       win-64:
-      - conda: https://conda.anaconda.org/conda-forge/win-64/m2-conda-epoch-20250515-0_x86_64.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/m2-msys2-runtime-3.6.1.4-hc364b38_6.conda
-      - conda: https://conda.anaconda.org/conda-forge/noarch/m2-patch-2.7.6.3-hc364b38_6.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/rattler-build-0.29.0-h49672d7_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/ucrt-10.0.26100.0-h57928b3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/vc-14.3-h2b53caa_32.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/vc14_runtime-14.44.35208-h818238b_32.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/vcomp14-14.44.35208-h818238b_32.conda
 packages:
-- conda: https://conda.anaconda.org/conda-forge/win-64/m2-conda-epoch-20250515-0_x86_64.conda
-  build_number: 0
-  sha256: 51e9214548f177db9c3fe70424e3774c95bf19cd69e0e56e83abe2e393228ba1
-  md5: 7d60fb16df2cd07fbc3dbff1c9df4244
-  constrains:
-  - msys2-conda-epoch <0.0a0
-  license: BSD-3-Clause
-  license_family: BSD
-  size: 7539
-  timestamp: 1747330852019
-- conda: https://conda.anaconda.org/conda-forge/noarch/m2-msys2-runtime-3.6.1.4-hc364b38_6.conda
-  sha256: 1f797d055ad856def2399d5c1c21d7a479fa68159ce5448f07b7c6cf4b9641d7
-  md5: fb7de65144b11c4c7284a00e3170c797
-  depends:
-  - m2-conda-epoch ==20250515 *_x86_64
-  license: GPL-3.0-or-later
-  license_family: GPL
-  size: 2156552
-  timestamp: 1748281166706
-- conda: https://conda.anaconda.org/conda-forge/noarch/m2-patch-2.7.6.3-hc364b38_6.conda
-  sha256: 8435e84af2810886ac6ca3f2c61f196fcd05932d4fb072ad8864548b248ce753
-  md5: 01d504b9ee36cde8239f2f471b7bb080
-  depends:
-  - m2-msys2-runtime
-  - m2-conda-epoch ==20250515 *_x86_64
-  license: GPL-3.0-or-later
-  license_family: GPL
-  size: 125917
-  timestamp: 1748281166711
 - conda: https://conda.anaconda.org/conda-forge/win-64/rattler-build-0.29.0-h49672d7_1.conda
   sha256: 90ef9b3a51bb8fef0ef481b4a710c3c5042d3dd3240e62613dc7a35bf5c4712b
   md5: 20da1ed142dd2c94bacb123e7559384b
