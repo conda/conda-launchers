@@ -59,7 +59,7 @@ outputs:
             # gui
             - Scripts/gui-${{ arch_suffix }}.exe
             - Scripts/gui-${{ arch_suffix }}-script.pyw
-      - 
+      -
         script:
           - set PYLAUNCH_DEBUG=1
           - cli-${{ arch_suffix }}
