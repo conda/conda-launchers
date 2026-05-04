@@ -98,7 +98,8 @@ jobs:
           path: |
             ./output/${{ matrix.target-platform }}/conda-launchers*.conda
 
-  anaconda:
+  upload-channel:
+    name: Upload to channel
     needs: [build]
     runs-on: windows-latest
     env:
