@@ -18,7 +18,7 @@ FOR /F "delims=" %%i IN ('cygpath.exe -u "%PREFIX%"') DO set "PREFIX=%%i"
 FOR /F "delims=" %%i in ('cygpath.exe -u "%BUILD_PREFIX%"') DO set "BUILD_PREFIX=%%i"
 
 copy %RECIPE_DIR%\build.sh .
-bash build.sh
+CALL bash build.sh
 IF %ERRORLEVEL% NEQ 0 exit 1
 
 dir %SCRIPTS%
