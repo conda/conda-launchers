@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - main
+  release:
 
 concurrency:
   # Concurrency group that uses the workflow name and PR number if available
@@ -18,86 +19,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  conda_build_recipe:
-    name: Build conda recipe (${{ matrix.subdir }})
+  build:
+    name: Build recipe with ${{ matrix.compiler }} for ${{ matrix.subdir }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: windows-latest
-            subdir: win-64
+            subdir: win-32
+            compiler: gcc
           - os: windows-latest
-            subdir: win-arm64
+            subdir: win-32
+            compiler: vs2022
+          - os: windows-latest
+            subdir: win-64
+            compiler: zig
     env:
       PYTHONUNBUFFERED: "1"
-    steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
-      - uses: conda-incubator/setup-miniconda@835234971496cad1653abb28a638a281cf32541f # v3.2.0
-        with:
-          auto-activate-base: true
-          activate-environment: ""
-          run-post: false
-
-      - name: Install dependencies
-        shell: bash -el {0}
-        run: conda install -y --override-channels -c defaults "conda-build!=3.28.0,!=3.28.1" anaconda-client
-
-      - name: conda info
-        shell: bash -el {0}
-        run: |
-          set -x
-          conda info
-          conda config --show-sources
-          conda list
-
-      - name: Build recipe
-        shell: bash -el {0}
-        env:
-          CONDA_BLD_PATH: ${{ runner.temp }}/bld
-        run: |
-          conda build recipe \
-            --override-channels \
-            -c conda-forge \
-            -e .ci_support/${{ matrix.subdir }}.yaml \
-            --extra-meta \
-              flow_run_id="github_$GITHUB_RUN_ID" \
-              remote_url="https://github.com/$GITHUB_REPOSITORY" \
-              sha="$GITHUB_SHA"
-
-      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
-        if: github.event_name == 'pull_request'
-        with:
-          name: conda-launchers-${{ matrix.subdir }}
-          path: ${{ runner.temp }}/bld/${{ matrix.subdir }}/conda-launchers-*.*
-
-      - name: Upload package to anaconda.org
-        shell: bash -el {0}
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        env:
-          CONDA_BLD_PATH: ${{ runner.temp }}/bld
-          ANACONDA_ORG_TOKEN: ${{ secrets.ANACONDA_ORG_CONDA_CANARY_TOKEN }}
-          ANACONDA_ORG_CHANNEL: conda-canary
-          ANACONDA_ORG_LABEL: conda-launchers_dev
-        run: |
-          anaconda \
-            --token="${ANACONDA_ORG_TOKEN}" \
-            upload \
-            --force \
-            --register \
-            --no-progress \
-            --user="${ANACONDA_ORG_CHANNEL}" \
-            --label="${ANACONDA_ORG_LABEL}" \
-            ${CONDA_BLD_PATH}/${{ matrix.subdir }}/conda-launchers-*.*
-          echo "Uploaded the following files:"
-          basename -a ${CONDA_BLD_PATH}/${{ matrix.subdir }}/conda-launchers-*.*
-
-          echo "Use this command to try out the build:"
-          echo "  conda install -c ${ANACONDA_ORG_CHANNEL}/label/${ANACONDA_ORG_LABEL} conda-launchers"
-
-  rattler_build_recipe:
-    name: Rattler build recipe
-    runs-on: windows-latest
     steps:
       - name: Checkout Source
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
@@ -118,7 +57,12 @@ jobs:
       - name: Run Build
         shell: pwsh
         run: |
-          pixi run build `
+          pixi run rattler-build build `
+            --recipe recipe `
+            --variant c_compiler=${{ matrix.compiler }} `
+            --log-style plain `
+            --skip-existing all `
+            --channel conda-forge `
             --extra-meta flow_run_id="github_$GITHUB_RUN_ID" `
             --extra-meta remote_url="https://github.com/$GITHUB_REPOSITORY" `
             --extra-meta sha="$GITHUB_SHA"
@@ -126,15 +70,15 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
-          name: conda-launchers-zig-builds
+          name: conda-launchers-builds
           path: |
             ./output/noarch/conda-launchers*.conda
 
       - name: Upload to Anaconda
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'release'
         env:
           ANACONDA_OWNER: conda-canary
-          ANACONDA_CHANNEL: conda-launchers-zig_dev
+          ANACONDA_CHANNEL: conda-launchers_dev
           ANACONDA_API_KEY: ${{ secrets.ANACONDA_ORG_CONDA_CANARY_TOKEN }}
         shell: pwsh
         run: |
@@ -144,5 +88,5 @@ jobs:
           }
           foreach ($file in Get-ChildItem -Path "./output/noarch/conda-launchers*.conda") {
             Write-Host "Uploading $($file.Name)"
-            pixi run upload "$file"
+            pixi run rattler-build upload anaconda --log-style plain "$file"
           }

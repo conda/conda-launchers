@@ -1,10 +1,9 @@
 context:
-  name: conda-launchers
   version: "24.7.1"
   build_number: 2
 
 recipe:
-  name: ${{ name|lower }}
+  name: conda-launchers
   version: ${{ version }}
 
 source:
@@ -21,28 +20,30 @@ source:
 build:
   number: ${{ build_number }}
   skip:
-    - unix
-    - win and arm64 # this ensures builds only trigger on win-64
+    # - unix
 
 outputs:
   - package:
-      name: ${{ name }}
+      name: conda-launchers
 
     build:
       noarch: generic
+      string: ${{ hash }}_${{ c_compiler }}_${{ build_number }}
+      variant:
+        down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs2022' else 0 }}
 
     requirements:
       run:
-        - ${{ name }}_win-32 ${{ version }}
-        - ${{ name }}_win-64 ${{ version }}
-        - ${{ name }}_win-arm64 ${{ version }}
+        - ${{ pin_subpackage('conda-launchers_win-32', exact=True) }}
+        - ${{ pin_subpackage('conda-launchers_win-64', exact=True) }}
+        - ${{ pin_subpackage('conda-launchers_win-arm64', exact=True) }}
 
     tests:
       - requirements:
           run:
-            - ${{ name }}_win-32 ${{ version }}
-            - ${{ name }}_win-64 ${{ version }}
-            - ${{ name }}_win-arm64 ${{ version }}
+            - ${{ pin_subpackage('conda-launchers_win-32', exact=True) }}
+            - ${{ pin_subpackage('conda-launchers_win-64', exact=True) }}
+            - ${{ pin_subpackage('conda-launchers_win-arm64', exact=True) }}
         script:
           # cli
           - if not exist %PREFIX%\Scripts\cli-32.exe exit 1
@@ -68,14 +69,27 @@ outputs:
             then: call "%PREFIX%\Scripts\gui-arm64.exe"
 
   - package:
-      name: ${{ name }}_win-32
+      name: conda-launchers_win-32
 
     build:
       noarch: generic
-
+      string: ${{ hash }}_${{ c_compiler }}_${{ build_number }}
+      script: ${{ 'build-zig.bat' if c_compiler == 'zig' else 'build-sh.bat' }}
+      
+      variant:
+        down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs2022' else 0 }}
+      
     requirements:
+      ignore_run_exports:
+        from_package: 
+          - ${{ compiler("c") }}
+          - ${{ stdlib("c") }}
       build:
-        - zig ==0.13.0
+        - ${{ compiler("c") }}
+        - ${{ stdlib("c") }}
+        - if: c_compiler != 'zig'
+          then:
+            - m2-base
 
       run:
         - python
@@ -92,15 +106,27 @@ outputs:
             - Scripts/gui-32-script.pyw
 
   - package:
-      name: ${{ name }}_win-64
+      name: conda-launchers_win-64
 
     build:
       noarch: generic
+      string: ${{ hash }}_${{ c_compiler }}_${{ build_number }}
+      script: ${{ 'build-zig.bat' if c_compiler == 'zig' else 'build-sh.bat' }}
+      variant:
+        down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs2022' else 0 }}
 
     requirements:
+      ignore_run_exports:
+        from_package: 
+          - ${{ compiler("c") }}
+          - ${{ stdlib("c") }}
       build:
-        - zig ==0.13.0
-
+        - ${{ compiler("c") }}
+        - ${{ stdlib("c") }}
+        - if: c_compiler != 'zig'
+          then:
+            - m2-base
+    
       run:
         - python
         - __win
@@ -116,14 +142,26 @@ outputs:
             - Scripts/gui-64-script.pyw
 
   - package:
-      name: ${{ name }}_win-arm64
+      name: conda-launchers_win-arm64
 
     build:
       noarch: generic
+      string: ${{ hash }}_${{ c_compiler }}_${{ build_number }}
+      script: ${{ 'build-zig.bat' if c_compiler == 'zig' else 'build-sh.bat' }}
+      variant:
+        down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs2022' else 0 }}
 
     requirements:
+      ignore_run_exports:
+        from_package: 
+          - ${{ compiler("c") }}
+          - ${{ stdlib("c") }}
       build:
-        - zig ==0.13.0
+        - ${{ compiler("c") }}
+        - ${{ stdlib("c") }}
+        - if: c_compiler != 'zig'
+          then:
+            - m2-base
 
       run:
         - python
@@ -154,6 +192,5 @@ about:
 
 extra:
   recipe-maintainers:
-    - chawyehsu
     - jaimergp
     - jezdez

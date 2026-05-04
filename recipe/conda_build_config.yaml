@@ -1,0 +1,24 @@
+c_compiler:
+  - gcc
+  - zig
+  - vs2022
+c_compiler_version:
+  - "14"
+  - "0.13.0"
+  - "*"
+c_stdlib:
+  - m2w64-sysroot
+  - zig
+  - vs
+c_stdlib_version:
+  - "12"
+  - 0.13.0
+  - "*"
+
+zip_keys:
+  - 
+    - c_compiler
+    - c_compiler_version
+    - c_stdlib
+    - c_stdlib_version
+    
