@@ -95,7 +95,7 @@ jobs:
           --recipe recipe `
           --ignore-recipe-variants `
           --variant-config recipe\variants\${{ matrix.compiler }}.yaml `
-          --target-plaform ${{ matrix.target_platform }}.yaml `
+          --target-platform ${{ matrix.target_platform }}.yaml `
           --log-style plain `
           --skip-existing all `
           --channel conda-forge `
