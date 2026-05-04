@@ -132,7 +132,7 @@ jobs:
         shell: pwsh
         run: |
           dir output
-      
+
       - name: Upload to Anaconda
         if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'release'
         env:
