@@ -16,9 +16,9 @@ c_stdlib_version:
   - "*"
 
 zip_keys:
-  - 
+  -
     - c_compiler
     - c_compiler_version
     - c_stdlib
     - c_stdlib_version
-    
+

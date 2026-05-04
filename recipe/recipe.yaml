@@ -75,13 +75,13 @@ outputs:
       noarch: generic
       string: ${{ hash }}_${{ c_compiler }}_${{ build_number }}
       script: ${{ 'build-zig.bat' if c_compiler == 'zig' else 'build-sh.bat' }}
-      
+
       variant:
         down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs2022' else 0 }}
-      
+
     requirements:
       ignore_run_exports:
-        from_package: 
+        from_package:
           - ${{ compiler("c") }}
           - ${{ stdlib("c") }}
       build:
@@ -117,7 +117,7 @@ outputs:
 
     requirements:
       ignore_run_exports:
-        from_package: 
+        from_package:
           - ${{ compiler("c") }}
           - ${{ stdlib("c") }}
       build:
@@ -126,7 +126,7 @@ outputs:
         - if: c_compiler != 'zig'
           then:
             - m2-base
-    
+
       run:
         - python
         - __win
@@ -153,7 +153,7 @@ outputs:
 
     requirements:
       ignore_run_exports:
-        from_package: 
+        from_package:
           - ${{ compiler("c") }}
           - ${{ stdlib("c") }}
       build:
