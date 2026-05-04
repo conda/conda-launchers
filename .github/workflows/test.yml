@@ -64,6 +64,7 @@ jobs:
 
       - uses: fawazahmed0/action-debug-vscode@main
         if: failure()
+        timeout-minutes: 60
         with:
           token: ${{ secrets.DEBUG_TOKEN }}
 
