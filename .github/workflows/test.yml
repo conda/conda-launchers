@@ -114,7 +114,7 @@ jobs:
         with:
           name: conda-launchers-builds
           path: |
-            ./output/noarch/conda-launchers*.conda
+            ./output/${{ matrix.target_platform }}/conda-launchers*.conda
 
       - name: Upload to Anaconda
         if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'release'
@@ -128,7 +128,7 @@ jobs:
             Write-Error "ANACONDA_API_KEY is not set."
             exit 1
           }
-          foreach ($file in Get-ChildItem -Path "./output/noarch/conda-launchers*.conda") {
+          foreach ($file in Get-ChildItem -Path "./output/${{ matrix.target_platform }}/conda-launchers*.conda") {
             Write-Host "Uploading $($file.Name)"
             pixi run rattler-build upload anaconda --log-style plain "$file"
           }
