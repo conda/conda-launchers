@@ -44,10 +44,9 @@ jobs:
           pixi info
           pixi list
 
-
-          - name: Run Build
-          shell: pwsh
-          run: |
+      - name: Run Build
+        shell: pwsh
+        run: |
           pixi run rattler-build build `
           --recipe recipe `
           --log-style plain `
