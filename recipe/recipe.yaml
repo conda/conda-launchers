@@ -54,11 +54,11 @@ outputs:
       - package_contents:
           files:
             # cli
-            - Scripts/cli-64.exe
-            - Scripts/cli-64-script.py
+            - Scripts/cli-${{ arch_suffix }}.exe
+            - Scripts/cli-${{ arch_suffix }}-script.py
             # gui
-            - Scripts/gui-64.exe
-            - Scripts/gui-64-script.pyw
+            - Scripts/gui-${{ arch_suffix }}.exe
+            - Scripts/gui-${{ arch_suffix }}-script.pyw
 
 about:
   homepage: https://github.com/conda/conda-launchers
