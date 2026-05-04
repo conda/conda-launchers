@@ -54,13 +54,13 @@ jobs:
       PYTHONUNBUFFERED: "1"
     steps:
       - name: Checkout Source
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 1
           persist-credentials: false
 
       - name: Setup Pixi
-        uses: prefix-dev/setup-pixi@82d477f15f3a381dbcc8adc1206ce643fe110fb7 # v0.9.3
+        uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
         with:
           cache: true
 
@@ -85,14 +85,14 @@ jobs:
           --extra-meta remote_url="https://github.com/$GITHUB_REPOSITORY" `
           --extra-meta sha="$GITHUB_SHA"
 
-      # - uses: fawazahmed0/action-debug-vscode@main
+      # - uses: fawazahmed0/action-debug-vscode@b86399d1033aab18cf8f962fc7f634f39c9945ec # v3
       #   if: failure()
       #   timeout-minutes: 60
       #   with:
       #     token: ${{ secrets.DEBUG_TOKEN }}
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: conda-launchers-builds
           path: |
