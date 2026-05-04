@@ -20,20 +20,17 @@ concurrency:
 
 jobs:
   build:
-    name: Build recipe with ${{ matrix.compiler }} for ${{ matrix.subdir }}
+    name: Build recipe with ${{ matrix.compiler }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: windows-latest
-            subdir: win-32
             compiler: gcc
           - os: windows-latest
-            subdir: win-32
             compiler: vs2022
           - os: windows-latest
-            subdir: win-64
             compiler: zig
     env:
       PYTHONUNBUFFERED: "1"
