@@ -78,3 +78,6 @@ for f in *.exe; do
   cp "$f" "${PREFIX}/Scripts"
   echo "print(\"$f successfully launched the accompanying Python script\")" > "${PREFIX}/Scripts/${f%.*}-script.py"
 done
+
+echo "Scripts contain:"
+ls -alh "${PREFIX}/Scripts/"
