@@ -2,7 +2,7 @@
 if %PKG_NAME% == conda-launchers (exit 0)
 
 @rem Patch manually
-patch.exe -Np0 -i cpython-launcher-c-mods-for-setuptools.3.7.patch.native --binary
+patch.exe -Np0 -i cpython-launcher-c-mods-for-setuptools.3.7.patch --binary
 IF %ERRORLEVEL% NEQ 0 exit 1
 
 @rem rename patched source file to be used for building
