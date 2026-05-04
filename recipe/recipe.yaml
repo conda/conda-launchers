@@ -42,8 +42,12 @@ outputs:
           - ${{ compiler("c") }}
           - ${{ stdlib("c") }}
       build:
-        - ${{ compiler("c") }}
-        - ${{ stdlib("c") }}
+        - if: c_compiler == 'zig'
+          then:
+            - zig
+          else:
+            - ${{ compiler("c") }}
+            - ${{ stdlib("c") }}
         - m2-patch
 
       run:

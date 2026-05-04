@@ -69,7 +69,7 @@ pub fn build(b: *std.Build) void {
         // NOTE: This requires Zig version 0.12.0-dev.3493+3661133f9 or later
         exe.mingw_unicode_entry_point = true;
     } else {
-        // In Zig 0.15, 2nd argument is required. `.{}` to use default values.
+        // `.{}` means default values.
         exe.root_module.linkSystemLibrary("advapi32", .{});
         exe.root_module.linkSystemLibrary("shell32", .{});
         if (gui) {

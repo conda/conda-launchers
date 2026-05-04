@@ -1,8 +1,17 @@
+zig:
+  - "0.14.0"
+# Keep these definitions to pass parsing stage
+
 c_compiler:
   - zig
-c_compiler_version:
-  - "0.15.2"
 c_stdlib:
   - zig
-c_stdlib_version:
-  - "0.15.2"
+
+# We do have a conda-forge compiler activation stack
+# beginning with 0.15.2, but it fails cross-compilation
+# Enable once we figure it out. It requires using %ZIG%
+# instead of `zig`, among other changes.
+# c_compiler_version:
+#   - "0.15.2"
+# c_stdlib_version:
+#   - "0.15.2"
