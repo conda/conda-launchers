@@ -14,6 +14,29 @@ These are the binaries that you can find next to all those `*-script.py` files i
 
 `conda` and `conda-build` will place an adequately renamed copy next to each [Python `console_scripts` entry point](https://packaging.python.org/en/latest/specifications/entry-points/#use-for-scripts) created.
 
+## How to build
+
+Different compiler stacks will generate different binaries. Since these launcher executables
+will be copied many times over, we want the smallest self-contained executables. No external
+linkage allowed.
+
+We have three different build variants:
+
+- GCC: the smallest binaries, but only for `win-64` so far.
+- MSVC: `win-64` and `win-arm64`, but they are heavier.
+- Zig: small executables, all platforms, but maintainers are not very familiar with the stack. Consider them experimental.
+
+You can build either by calling `rattler-build` via `pixi` in this cloned repository:
+
+```batch
+pixi run rattler-build build ^
+    --recipe recipe/ ^
+    --variant-config recipe/variants/{gcc,vs,zig}.yaml ^
+    --target-platform {win-32,win-64,win-arm64}
+```
+
+> `{a,b,c}` above denotes "Pick one of these"
+
 ## History
 
 These launchers are based on the [CPython 3.7 launcher](https://github.com/python/cpython/blob/3.7/PC/launcher.c). These launchers were then [patched](https://github.com/conda/conda-build/blob/24.7.1/conda_build/launcher_sources/cpython-launcher-c-mods-for-setuptools.3.7.patch) for the conda ecosystem and historically provided in the `conda/conda-build` repository:
