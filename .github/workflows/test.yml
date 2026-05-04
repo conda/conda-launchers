@@ -28,20 +28,17 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - compiler: gcc
-            target_platform: win-32
+          # NOTE: win-32 is not supported by any of the stacks
+
+          # GCC stack on Windows is only available for win-64
           - compiler: gcc
             target_platform: win-64
 
-          - compiler: vs
-            target_platform: win-32
           - compiler: vs
             target_platform: win-64
           - compiler: vs
             target_platform: win-arm64
 
-          - compiler: zig
-            target_platform: win-32
           - compiler: zig
             target_platform: win-64
           - compiler: zig
