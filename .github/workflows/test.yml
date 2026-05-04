@@ -44,21 +44,23 @@ jobs:
           pixi info
           pixi list
 
+          
+          - name: Run Build
+          shell: pwsh
+          run: |
+          pixi run rattler-build build `
+          --recipe recipe `
+          --log-style plain `
+          --skip-existing all `
+          --channel conda-forge `
+          --extra-meta flow_run_id="github_$GITHUB_RUN_ID" `
+          --extra-meta remote_url="https://github.com/$GITHUB_REPOSITORY" `
+          --extra-meta sha="$GITHUB_SHA"
+          
       - uses: fawazahmed0/action-debug-vscode@main
+        if: failure()
         with:
           token: ${{ secrets.DEBUG_TOKEN }}
-
-      - name: Run Build
-        shell: pwsh
-        run: |
-          pixi run rattler-build build `
-            --recipe recipe `
-            --log-style plain `
-            --skip-existing all `
-            --channel conda-forge `
-            --extra-meta flow_run_id="github_$GITHUB_RUN_ID" `
-            --extra-meta remote_url="https://github.com/$GITHUB_REPOSITORY" `
-            --extra-meta sha="$GITHUB_SHA"
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
