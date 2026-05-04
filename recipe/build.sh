@@ -71,13 +71,18 @@ done
 echo "Built these executables:"
 ls -alh *.exe
 
-# Install in PREFIX
-mkdir -p "${PREFIX}/Scripts"
 for f in *.exe; do
-  echo "Installing $f..."
-  cp "$f" "${PREFIX}/Scripts"
-  echo "print(\"$f successfully launched the accompanying Python script\")" > "${PREFIX}/Scripts/${f%.*}-script.py"
+  echo "Generating script for $f..."
+  echo "print(\"$f successfully launched the accompanying Python script\")" > "${f%.*}-script.py"
 done
 
-echo "Scripts contain:"
-ls -alh "${PREFIX}/Scripts/"
+echo "Generating pyw for gui-${_ARCH}.exe..."
+cat > gui-${_ARCH}-script.pyw <<'EOF'
+import tkinter as tk
+root = tk.Tk()
+text = tk.Label(root, text ="Hello and Bye!")
+text.pack()
+root.geometry("150x100")
+root.after(1000, lambda: root.destroy())
+root.mainloop()
+EOF
