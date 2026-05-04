@@ -27,7 +27,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: [gcc, vs, zig]
+        include:
+          - compiler: gcc
+            target_platform: win-32
+          - compiler: gcc
+            target_platform: win-64
+
+          - compiler: vs
+            target_platform: win-32
+          - compiler: vs
+            target_platform: win-64
+          - compiler: vs
+            target_platform: win-arm64
+
+          - compiler: zig
+            target_platform: win-32
+          - compiler: zig
+            target_platform: win-64
+          - compiler: zig
+            target_platform: win-arm64
     env:
       PYTHONUNBUFFERED: "1"
     steps:
@@ -48,6 +66,28 @@ jobs:
           pixi info
           pixi list
 
+      - name: Find and Add RC.exe to PATH
+        shell: pwsh
+        run: |
+          # Find the path dynamically
+          $vsPath = vswhere -latest -property installationPath
+          $sdkBase = "C:\Program Files (x86)\Windows Kits\10\bin"
+          $latestVersion = Get-ChildItem -Path $sdkBase | Where-Object { $_.Name -match '^10\.' } | Sort-Object Name -Descending | Select-Object -First 1
+          $rcDir = Join-Path $sdkBase "$($latestVersion.Name)\x64"
+
+          # Add to GitHub PATH
+          if (Test-Path $rcDir) {
+              echo "$rcDir" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+              Write-Host "Successfully added $rcDir to GITHUB_PATH"
+          } else {
+              Write-Error "Could not find SDK directory"
+              exit 1
+          }
+
+      - name: Verify RC is available
+        shell: pwsh
+        run: rc /?
+
       - name: Run Build
         shell: pwsh
         run: |
@@ -55,6 +95,7 @@ jobs:
           --recipe recipe `
           --ignore-recipe-variants `
           --variant-config recipe\variants\${{ matrix.compiler }}.yaml `
+          --target-plaform ${{ matrix.target_platform }}.yaml `
           --log-style plain `
           --skip-existing all `
           --channel conda-forge `
@@ -62,11 +103,11 @@ jobs:
           --extra-meta remote_url="https://github.com/$GITHUB_REPOSITORY" `
           --extra-meta sha="$GITHUB_SHA"
 
-      - uses: fawazahmed0/action-debug-vscode@main
-        if: failure()
-        timeout-minutes: 60
-        with:
-          token: ${{ secrets.DEBUG_TOKEN }}
+      # - uses: fawazahmed0/action-debug-vscode@main
+      #   if: failure()
+      #   timeout-minutes: 60
+      #   with:
+      #     token: ${{ secrets.DEBUG_TOKEN }}
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0

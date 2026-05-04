@@ -4,8 +4,7 @@
 
 set -euxo pipefail
 
-_SUBDIR=${PKG_NAME#*_}  # subdir stored in package name after underscore
-_ARCH=${_SUBDIR#*-}  # keep chunk after dash (e.g. '64' in 'win-64')
+_ARCH=${target_platform#*-}  # keep chunk after dash (e.g. '64' in 'win-64')
 
 if [[ "${_ARCH}" == "32" ]]; then
   _CL_MACHINE=x86
@@ -58,7 +57,7 @@ for _TYPE in cli gui; do
   #  since -MD needs vcruntime140.dll installed and the binaries need
   #  to be run from Scripts which does not have vcruntime140.dll.
   #  Also we cannot assume that vcruntime140.dll is found in the system.
-  if [[ "${c_compiler}" == "vs" ]]; then
+  if [[ "${c_compiler}" == vs* ]]; then
     cl.exe -D NDEBUG -D "WIN32_LEAN_AND_MEAN" ${CPPFLAGS} -ZI -Gy -MT launcher.c -Os -link -MACHINE:${_CL_MACHINE} ${LDFLAGS} resources-${_ARCH}.res user32.lib version.lib advapi32.lib shell32.lib -out:${_TYPE}-${_ARCH}.exe
   else
     ${CC} -O2 -DSCRIPT_WRAPPER -DUNICODE -D_UNICODE -DMINGW_HAS_SECURE_API -DMAXINT=INT_MAX ${CPPFLAGS} \

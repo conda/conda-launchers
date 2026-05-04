@@ -1,6 +1,7 @@
 context:
   version: "24.7.1"
   build_number: 3
+  arch_suffix : ${{ target_platform | split ("-") | last }}
 
 recipe:
   name: conda-launchers
@@ -29,98 +30,6 @@ outputs:
       name: conda-launchers
 
     build:
-      noarch: generic
-      string: ${{ hash }}_${{ c_compiler }}_${{ build_number }}
-      variant:
-        down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs' else 0 }}
-
-    requirements:
-      run:
-        - if: c_compiler != 'vs'
-          then:
-            - ${{ pin_subpackage('conda-launchers_win-32', exact=True) }}
-        - ${{ pin_subpackage('conda-launchers_win-64', exact=True) }}
-        - ${{ pin_subpackage('conda-launchers_win-arm64', exact=True) }}
-
-    tests:
-      - requirements:
-          run:
-            - if: c_compiler != 'vs'
-              then:
-                - ${{ pin_subpackage('conda-launchers_win-32', exact=True) }}
-            - ${{ pin_subpackage('conda-launchers_win-64', exact=True) }}
-            - ${{ pin_subpackage('conda-launchers_win-arm64', exact=True) }}
-        script:
-          # cli
-          - if: c_compiler != 'vs'
-            then:
-              - if not exist %PREFIX%\Scripts\cli-32.exe exit 1
-              - if not exist %PREFIX%\Scripts\cli-32-script.py exit 1
-              - call "%PREFIX%\Scripts\cli-32.exe"
-          - if not exist %PREFIX%\Scripts\cli-64.exe exit 1
-          - if not exist %PREFIX%\Scripts\cli-64-script.py exit 1
-          - call "%PREFIX%\Scripts\cli-64.exe"
-          - if not exist %PREFIX%\Scripts\cli-arm64.exe exit 1
-          - if not exist %PREFIX%\Scripts\cli-arm64-script.py exit 1
-          - if: win and arm64
-            then: call "%PREFIX%\Scripts\cli-arm64.exe"
-          # gui
-          - if: c_compiler != 'vs'
-            then:
-              - if not exist %PREFIX%\Scripts\gui-32.exe exit 1
-              - if not exist %PREFIX%\Scripts\gui-32-script.pyw exit 1
-              - call "%PREFIX%\Scripts\gui-32.exe"
-          - if not exist %PREFIX%\Scripts\gui-64.exe exit 1
-          - if not exist %PREFIX%\Scripts\gui-64-script.pyw exit 1
-          - call "%PREFIX%\Scripts\gui-64.exe"
-          - if not exist %PREFIX%\Scripts\gui-arm64.exe exit 1
-          - if not exist %PREFIX%\Scripts\gui-arm64-script.pyw exit 1
-          - if: win and arm64
-            then: call "%PREFIX%\Scripts\gui-arm64.exe"
-
-  - package:
-      name: conda-launchers_win-32
-
-    build:
-      skip:
-        - c_compiler == 'vs'
-      noarch: generic
-      string: ${{ hash }}_${{ c_compiler }}_${{ build_number }}
-      script:
-        file: ${{ 'build-zig.bat' if c_compiler == 'zig' else 'build-sh.bat' }}
-
-      variant:
-        down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs' else 0 }}
-
-    requirements:
-      ignore_run_exports:
-        from_package:
-          - ${{ c_compiler }}_win-32
-          - ${{ stdlib("c") }}
-      build:
-        - ${{ c_compiler }}_win-32
-        - ${{ stdlib("c") }}
-        - m2-patch
-
-      run:
-        - python
-        - __win
-
-    tests:
-      - package_contents:
-          files:
-            # cli
-            - Scripts/cli-32.exe
-            - Scripts/cli-32-script.py
-            # gui
-            - Scripts/gui-32.exe
-            - Scripts/gui-32-script.pyw
-
-  - package:
-      name: conda-launchers_win-64
-
-    build:
-      noarch: generic
       string: ${{ hash }}_${{ c_compiler }}_${{ build_number }}
       script:
         file: ${{ 'build-zig.bat' if c_compiler == 'zig' else 'build-sh.bat' }}
@@ -130,10 +39,10 @@ outputs:
     requirements:
       ignore_run_exports:
         from_package:
-          - ${{ c_compiler }}_win-64
+          - ${{ compiler("c") }}
           - ${{ stdlib("c") }}
       build:
-        - ${{ c_compiler }}_win-64
+        - ${{ compiler("c") }}
         - ${{ stdlib("c") }}
         - m2-patch
 
@@ -150,41 +59,6 @@ outputs:
             # gui
             - Scripts/gui-64.exe
             - Scripts/gui-64-script.pyw
-
-  - package:
-      name: conda-launchers_win-arm64
-
-    build:
-      noarch: generic
-      string: ${{ hash }}_${{ c_compiler }}_${{ build_number }}
-      script:
-        file: ${{ 'build-zig.bat' if c_compiler == 'zig' else 'build-sh.bat' }}
-      variant:
-        down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs' else 0 }}
-
-    requirements:
-      ignore_run_exports:
-        from_package:
-          - ${{ c_compiler }}_win-arm64
-          - ${{ stdlib("c") }}
-      build:
-        - ${{ c_compiler }}_win-arm64
-        - ${{ stdlib("c") }}
-        - m2-patch
-
-      run:
-        - python
-        - __win
-
-    tests:
-      - package_contents:
-          files:
-            # cli
-            - Scripts/cli-arm64.exe
-            - Scripts/cli-arm64-script.py
-            # gui
-            - Scripts/gui-arm64.exe
-            - Scripts/gui-arm64-script.pyw
 
 about:
   homepage: https://github.com/conda/conda-launchers
