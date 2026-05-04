@@ -1,3 +1,4 @@
+# REMEMBER: update recipe/variants/*.yaml if this gets updated
 c_compiler:
   - gcc
   - zig

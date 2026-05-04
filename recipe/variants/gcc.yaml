@@ -1,0 +1,9 @@
+# REMEMBER: update recipe/conda_build_config.yaml if this gets updated
+c_compiler:
+  - gcc
+c_compiler_version:
+  - "14"
+c_stdlib:
+  - m2w64-sysroot
+c_stdlib_version:
+  - "12"

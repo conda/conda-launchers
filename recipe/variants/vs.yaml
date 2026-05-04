@@ -1,0 +1,9 @@
+# REMEMBER: update recipe/conda_build_config.yaml if this gets updated
+c_compiler:
+  - vs2022
+c_compiler_version:
+  - "*"
+c_stdlib:
+  - vs
+c_stdlib_version:
+  - "*"

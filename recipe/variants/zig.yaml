@@ -1,0 +1,9 @@
+# REMEMBER: update recipe/conda_build_config.yaml if this gets updated
+c_compiler:
+  - zig
+c_compiler_version:
+  - "0.15.2"
+c_stdlib:
+  - zig
+c_stdlib_version:
+  - "0.15.2"

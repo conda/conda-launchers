@@ -22,8 +22,12 @@ permissions: {}
 
 jobs:
   build:
-    name: Build recipe
+    name: Build recipe with ${{ matrix.compiler }}
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, vs, zig]
     env:
       PYTHONUNBUFFERED: "1"
     steps:
@@ -49,6 +53,8 @@ jobs:
         run: |
           pixi run rattler-build build `
           --recipe recipe `
+          --ignore-recipe-variants `
+          --variant-config recipe\variants\${{ matrix.compiler }}.yaml `
           --log-style plain `
           --skip-existing all `
           --channel conda-forge `
