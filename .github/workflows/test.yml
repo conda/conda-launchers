@@ -20,18 +20,8 @@ concurrency:
 
 jobs:
   build:
-    name: Build recipe with ${{ matrix.compiler }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: windows-latest
-            compiler: gcc
-          - os: windows-latest
-            compiler: vs2022
-          - os: windows-latest
-            compiler: zig
+    name: Build recipe
+    runs-on: windows-latest
     env:
       PYTHONUNBUFFERED: "1"
     steps:
@@ -56,7 +46,6 @@ jobs:
         run: |
           pixi run rattler-build build `
             --recipe recipe `
-            --variant c_compiler=${{ matrix.compiler }} `
             --log-style plain `
             --skip-existing all `
             --channel conda-forge `
