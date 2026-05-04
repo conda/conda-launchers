@@ -22,7 +22,7 @@ permissions: {}
 
 jobs:
   build:
-    name: Build recipe with ${{ matrix.compiler }}
+    name: Build recipe with ${{ matrix.compiler }} for ${{ matrix.target_platform }}
     runs-on: windows-latest
     strategy:
       fail-fast: false
