@@ -36,7 +36,10 @@ if %ERRORLEVEL% neq 0 exit 1
 @rem install launcher scripts
 cd "%PREFIX%\Scripts"
 (
+echo from pathlib import Path
+
 echo print^("cli-%EXE_TARGET%.exe successfully launched the accompanying Python script"^)
+echo Path^("cli-%EXE_TARGET%-output.txt"^).write_text^("cli-%EXE_TARGET%.exe successfully launched the accompanying Python script"^)
 )> "cli-%EXE_TARGET%-script.py"
 
 if %ERRORLEVEL% neq 0 exit 1

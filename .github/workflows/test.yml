@@ -22,28 +22,34 @@ permissions: {}
 
 jobs:
   build:
-    name: Build recipe with ${{ matrix.compiler }} for ${{ matrix.target_platform }}
-    runs-on: windows-latest
+    name: Build recipe with ${{ matrix.compiler }} for ${{ matrix.target-platform }}
+    runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
       matrix:
         include:
           # GCC stack on Windows is only available for win-64
           - compiler: gcc
-            target_platform: win-64
+            target-platform: win-64
+            runs-on: windows-latest
 
           # conda-forge maintain doesn't really maintain a win-32 stack for MSVC anymore
           - compiler: vs
-            target_platform: win-64
+            target-platform: win-64
+            runs-on: windows-latest
           - compiler: vs
-            target_platform: win-arm64
+            target-platform: win-arm64
+            runs-on: windows-11-arm
 
           - compiler: zig
-            target_platform: win-32
+            target-platform: win-32
+            runs-on: windows-latest
           - compiler: zig
-            target_platform: win-64
+            target-platform: win-64
+            runs-on: windows-latest
           - compiler: zig
-            target_platform: win-arm64
+            target-platform: win-arm64
+            runs-on: windows-11-arm
     env:
       PYTHONUNBUFFERED: "1"
     steps:
@@ -93,7 +99,7 @@ jobs:
           --recipe recipe `
           --ignore-recipe-variants `
           --variant-config recipe\variants\${{ matrix.compiler }}.yaml `
-          --target-platform ${{ matrix.target_platform }} `
+          --target-platform ${{ matrix.target-platform }} `
           --log-style plain `
           --skip-existing all `
           --channel conda-forge `
@@ -112,7 +118,7 @@ jobs:
         with:
           name: conda-launchers-builds
           path: |
-            ./output/${{ matrix.target_platform }}/conda-launchers*.conda
+            ./output/${{ matrix.target-platform }}/conda-launchers*.conda
 
       - name: Upload to Anaconda
         if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'release'
@@ -126,7 +132,7 @@ jobs:
             Write-Error "ANACONDA_API_KEY is not set."
             exit 1
           }
-          foreach ($file in Get-ChildItem -Path "./output/${{ matrix.target_platform }}/conda-launchers*.conda") {
+          foreach ($file in Get-ChildItem -Path "./output/${{ matrix.target-platform }}/conda-launchers*.conda") {
             Write-Host "Uploading $($file.Name)"
             pixi run rattler-build upload anaconda --log-style plain "$file"
           }

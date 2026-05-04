@@ -74,7 +74,12 @@ ls -alh *.exe
 
 for f in *.exe; do
   echo "Generating script for $f..."
-  echo "print(\"$f successfully launched the accompanying Python script\")" > "${f%.*}-script.py"
+  cat > "${f%.*}-script.py" <<EOF
+from pathlib import Path
+
+print("$f successfully launched the accompanying Python script")
+Path("${f%.*}-output.txt").write_text("$f successfully launched the accompanying Python script")
+EOF
 done
 
 echo "Generating pyw for gui-${_ARCH}.exe..."
