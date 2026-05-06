@@ -137,4 +137,4 @@ jobs:
           ANACONDA_API_KEY: ${{ secrets.ANACONDA_ORG_CONDA_CANARY_TOKEN }}
         shell: pwsh
         run: |
-          pixi run rattler-build upload anaconda --log-style plain ./output/conda-launchers*.conda
+          pixi run rattler-build upload anaconda --log-style plain (Get-Item ./output/conda-launchers*.conda).FullName
