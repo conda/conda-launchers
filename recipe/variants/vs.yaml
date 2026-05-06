@@ -1,0 +1,8 @@
+c_compiler:
+  - vs2022
+c_compiler_version:
+  - "*"
+c_stdlib:
+  - vs
+c_stdlib_version:
+  - "*"

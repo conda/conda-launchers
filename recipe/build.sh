@@ -4,9 +4,11 @@
 
 set -euxo pipefail
 
-_ARCH=${target_platform#*-} # keep chunk after dash (e.g. '64' in 'win-64')
+_ARCH=${target_platform#*-}  # keep chunk after dash (e.g. '64' in 'win-64')
 
-if [[ "${_ARCH}" == "64" ]]; then
+if [[ "${_ARCH}" == "32" ]]; then
+  _CL_MACHINE=x86
+elif [[ "${_ARCH}" == "64" ]]; then
   _CL_MACHINE=x64
 elif [[ "${_ARCH}" == "arm64" ]]; then
   _CL_MACHINE=ARM64
@@ -55,7 +57,7 @@ for _TYPE in cli gui; do
   #  since -MD needs vcruntime140.dll installed and the binaries need
   #  to be run from Scripts which does not have vcruntime140.dll.
   #  Also we cannot assume that vcruntime140.dll is found in the system.
-  if [[ "${c_compiler}" == "vs" ]]; then
+  if [[ "${c_compiler}" == vs* ]]; then
     cl.exe -D NDEBUG -D "WIN32_LEAN_AND_MEAN" ${CPPFLAGS} -ZI -Gy -MT launcher.c -Os -link -MACHINE:${_CL_MACHINE} ${LDFLAGS} resources-${_ARCH}.res user32.lib version.lib advapi32.lib shell32.lib -out:${_TYPE}-${_ARCH}.exe
   else
     ${CC} -O2 -DSCRIPT_WRAPPER -DUNICODE -D_UNICODE -DMINGW_HAS_SECURE_API -DMAXINT=INT_MAX ${CPPFLAGS} \
@@ -70,10 +72,23 @@ done
 echo "Built these executables:"
 ls -alh *.exe
 
-# Install in PREFIX
-mkdir -p "${PREFIX}/Scripts"
 for f in *.exe; do
-  echo "Installing $f..."
-  cp "$f" "${PREFIX}/Scripts"
-  echo "print(\"$f successfully launched the accompanying Python script\")" > "${PREFIX}/Scripts/${f%.*}-script.py"
+  echo "Generating script for $f..."
+  cat > "${f%.*}-script.py" <<EOF
+from pathlib import Path
+
+print("$f successfully launched the accompanying Python script")
+Path("${f%.*}-output.txt").write_text("$f successfully launched the accompanying Python script")
+EOF
 done
+
+echo "Generating pyw for gui-${_ARCH}.exe..."
+cat > gui-${_ARCH}-script.pyw <<'EOF'
+import tkinter as tk
+root = tk.Tk()
+text = tk.Label(root, text ="Hello and Bye!")
+text.pack()
+root.geometry("150x100")
+root.after(1000, lambda: root.destroy())
+root.mainloop()
+EOF
