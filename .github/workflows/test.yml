@@ -182,7 +182,7 @@ jobs:
           mkdir isolated
           foreach ($artifact in (Get-ChildItem "output/*.conda")) {
             Write-Host "Extracting $($artifact.Name)..."
-            $versionBuild = $artifact.BaseName -replace "conda-launchers-""
+            $versionBuild = $artifact.BaseName -replace "conda-launchers-"
             pixi run -e extract cph x $artifact.FullName --prefix "extracted"
             Write-Host "Isolating launchers..."
             foreach ($executable in (Get-ChildItem "extracted/$($artifact.BaseName)/Scripts/*-*.exe")) {
