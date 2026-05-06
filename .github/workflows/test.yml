@@ -232,7 +232,7 @@ jobs:
           name: conda-launchers-signed
           path: |
             ./isolated/*.exe
-      
+
       - name: Upload to release
         if: github.event_name == 'release'
         env:
