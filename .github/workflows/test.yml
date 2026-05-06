@@ -165,12 +165,12 @@ jobs:
         uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
         with:
           cache: true
-          environments: extracted
+          environments: extract
 
       - name: Pixi info
         run: |
           pixi info
-          pixi list -e extracted
+          pixi list -e extract
 
       - name: List artifacts
         run: |
@@ -183,7 +183,7 @@ jobs:
           foreach ($artifact in (Get-ChildItem "output/*.conda")) {
             Write-Host "Extracting $($artifact.Name)..."
             $versionBuild = $artifact.BaseName -replace 'conda-launchers-' ''
-            pixi run -e extracted cph x $artifact.FullName --prefix "extracted"
+            pixi run -e extract cph x $artifact.FullName --prefix "extracted"
             Write-Host "Isolating launchers..."
             foreach ($executable in (Get-ChildItem "extracted/$($artifact.BaseName)/Scripts/*-*.exe")) {
               Write-Host "... $($executable.Name)"

@@ -8,3 +8,9 @@ license = "BSD-3-Clause"
 
 [dependencies]
 rattler-build = "*"
+
+[feature.extract.dependencies]
+conda-package-handling = "*"
+
+[environments]
+extract = ["extract"]
