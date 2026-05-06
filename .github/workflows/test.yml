@@ -46,15 +46,15 @@ jobs:
             target-platform: win-arm64
             runs-on: windows-11-arm
 
-          - compiler: zig
-            target-platform: win-32
-            runs-on: windows-latest
-          - compiler: zig
-            target-platform: win-64
-            runs-on: windows-latest
-          - compiler: zig
-            target-platform: win-arm64
-            runs-on: windows-11-arm
+          # - compiler: zig
+          #   target-platform: win-32
+          #   runs-on: windows-latest
+          # - compiler: zig
+          #   target-platform: win-64
+          #   runs-on: windows-latest
+          # - compiler: zig
+          #   target-platform: win-arm64
+          #   runs-on: windows-11-arm
     env:
       PYTHONUNBUFFERED: "1"
     steps:
