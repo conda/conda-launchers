@@ -222,7 +222,9 @@ jobs:
         run: |
           $exitCode = 0
           foreach ($executable in (Get-ChildItem "isolated/*.exe")) {
+            Write-Host "******************************************"
             Write-Host $executable.Name
+            Write-Host "******************************************"
             $sig = Get-AuthenticodeSignature -FilePath $executable.FullName
             $sig | Format-List * | Out-String | Write-Host
             if ($sig.Status -ne 'Valid') {
