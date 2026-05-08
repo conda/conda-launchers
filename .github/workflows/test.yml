@@ -201,7 +201,7 @@ jobs:
           creds: >-
             {
               "clientId": "${{ secrets.WINDOWS_SIGNING_AZURE_CLIENT_ID }}",
-              "clientSecret": "${{ secrets.WINDOWS_SIGNING_AZURE_CLIENT_SECRET }}",
+              "clientSecret": "${{ secrets.WINDOWS_SIGNING_AZURE_CLIENT_SECRET_VALUE }}",
               "subscriptionId": "${{ secrets.WINDOWS_SIGNING_AZURE_SUBSCRIPTION_ID }}",
               "tenantId": "${{ secrets.WINDOWS_SIGNING_AZURE_TENANT_ID }}"
             }
