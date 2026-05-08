@@ -218,12 +218,26 @@ jobs:
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
 
+      - name: Verify signatures
+        run: |
+          $exitCode = 0
+          foreach ($executable in (Get-ChildItem "isolated/*.exe")) {
+            Write-Host $executable.Name
+            $sig = Get-AuthenticodeSignature -FilePath $executable.FullName
+            $sig | Format-List * | Out-String | Write-Host
+            if ($sig.Status -ne 'Valid') {
+              Write-Error "CRITICAL: Signature verification failed for $($executable.Name)!"
+              $exitCode = 1
+            }
+          }
+          exit $exitCode
+
       - name: Generate SHA256 files
         run: |
           foreach ($executable in (Get-ChildItem "isolated/*.exe")) {
             $hashObject = Get-FileHash $executable.FullName
-            $hashObject.Hash | Out-File -FilePath "$($file.FullName).sha256"
-            Write-Host "SHA256($($file.Name)): $($hashObject.Hash)"
+            $hashObject.Hash | Out-File -FilePath "$($executable.FullName).sha256"
+            Write-Host "SHA256($($executable.Name)): $($hashObject.Hash)"
           }
 
       - name: Upload Artifacts
