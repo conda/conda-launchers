@@ -202,7 +202,7 @@ jobs:
             {
               "clientId": "${{ secrets.WINDOWS_SIGNING_AZURE_CLIENT_ID }}",
               "clientSecret": "${{ secrets.WINDOWS_SIGNING_AZURE_CLIENT_SECRET }}",
-              "subscriptionId": "${{ secrets.WINDOWS_SIGNING_AZURE_SUBSCRIPTION_ID }}",  # MISSING
+              "subscriptionId": "${{ secrets.WINDOWS_SIGNING_AZURE_SUBSCRIPTION_ID }}",
               "tenantId": "${{ secrets.WINDOWS_SIGNING_AZURE_TENANT_ID }}"
             }
 
@@ -210,7 +210,7 @@ jobs:
         uses: azure/artifact-signing-action@b443cf8ea4124818d2ea9f043cba29fc3ec47b16 # v1.2.0
         with:
           endpoint: ${{ secrets.WINDOWS_SIGNING_ENDPOINT }}
-          signing-account-name: ${{ secrets.WINDOWS_SIGNING_ACCOUNT_NAME }}  # MISSING
+          signing-account-name: ${{ secrets.WINDOWS_SIGNING_ACCOUNT_NAME }}
           certificate-profile-name: ${{ secrets.WINDOWS_SIGNING_PROFILE_NAME }}
           files-folder: ${{ github.workspace }}\isolated
           files-folder-filter: exe
