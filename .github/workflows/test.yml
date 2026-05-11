@@ -143,8 +143,7 @@ jobs:
     name: Sign & Release
     needs: [build]
     runs-on: windows-latest
-    # TODO: RESTORE
-    # if: github.event_name == 'release'
+    if: github.event_name == 'release'
     env:
       PYTHONUNBUFFERED: "1"
     steps:

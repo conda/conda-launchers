@@ -41,8 +41,8 @@ pixi run rattler-build build ^
 
 You only need to create a new Release via the Github UI. This will trigger a new build in Github Actions that will:
 
-* Build all launchers from source as conda packages
-* Upload them to the `conda-canary` channel and CI artifacts
+* Build all launchers from source as conda packages.
+* Upload them to the `conda-canary` channel and CI artifacts.
 * Extract the `*.exe` files within, and sign them with Azure Code Signing.
 * Upload the signed executables to the Release Assets.
 
