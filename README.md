@@ -37,6 +37,17 @@ pixi run rattler-build build ^
 
 > `{a,b,c}` above denotes "Pick one of these"
 
+## Releases
+
+You only need to create a new Release via the Github UI. This will trigger a new build in Github Actions that will:
+
+* Build all launchers from source as conda packages.
+* Upload them to the `conda-canary` channel and CI artifacts.
+* Extract the `*.exe` files within, and sign them with Azure Code Signing.
+* Upload the signed executables to the Release Assets.
+
+The `conda-canary` channel does NOT ship signed binaries. They are only meant to support development workflows in this repository. Unless (re-)signing is an option, distributors would probably want to binary-repackage the Releases Assets directly.
+
 ## History
 
 These launchers are based on the [CPython 3.7 launcher](https://github.com/python/cpython/blob/3.7/PC/launcher.c). These launchers were then [patched](https://github.com/conda/conda-build/blob/24.7.1/conda_build/launcher_sources/cpython-launcher-c-mods-for-setuptools.3.7.patch) for the conda ecosystem and historically provided in the `conda/conda-build` repository:

@@ -8,6 +8,7 @@ on:
     branches:
       - main
   release:
+    types: [published]
 
 concurrency:
   # Concurrency group that uses the workflow name and PR number if available
@@ -19,6 +20,10 @@ concurrency:
   cancel-in-progress: true
 
 permissions: {}
+
+defaults:
+  run:
+    shell: pwsh
 
 jobs:
   build:
@@ -65,13 +70,11 @@ jobs:
           cache: true
 
       - name: Pixi info
-        shell: pwsh
         run: |
           pixi info
           pixi list
 
       - name: Run Build
-        shell: pwsh
         run: |
           pixi run rattler-build build `
           --recipe recipe `
@@ -119,13 +122,11 @@ jobs:
           cache: true
 
       - name: Pixi info
-        shell: pwsh
         run: |
           pixi info
           pixi list
 
       - name: List artifacts
-        shell: pwsh
         run: |
           dir output
 
@@ -135,6 +136,123 @@ jobs:
           ANACONDA_OWNER: conda-canary
           ANACONDA_CHANNEL: conda-launchers_dev
           ANACONDA_API_KEY: ${{ secrets.ANACONDA_ORG_CONDA_CANARY_TOKEN }}
-        shell: pwsh
         run: |
           pixi run rattler-build upload anaconda --log-style plain (Get-Item ./output/conda-launchers*.conda).FullName
+
+  sign-to-releases:
+    name: Sign & Release
+    needs: [build]
+    runs-on: windows-latest
+    if: github.event_name == 'release'
+    env:
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Download All Artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          path: output
+          pattern: conda-launchers-builds-*
+          merge-multiple: true
+
+      - name: Setup Pixi
+        uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
+        with:
+          cache: true
+          environments: extract
+
+      - name: Pixi info
+        run: |
+          pixi info
+          pixi list -e extract
+
+      - name: List artifacts
+        run: |
+          dir output
+
+      - name: Extract and rename executables
+        run: |
+          mkdir extracted
+          mkdir isolated
+          foreach ($artifact in (Get-ChildItem "output/*.conda")) {
+            Write-Host "Extracting $($artifact.Name)..."
+            $versionBuild = $artifact.BaseName -replace "conda-launchers-"
+            pixi run -e extract cph x $artifact.FullName --prefix "extracted"
+            Write-Host "Isolating launchers..."
+            foreach ($executable in (Get-ChildItem "extracted/$($artifact.BaseName)/Scripts/*-*.exe")) {
+              Write-Host "  $($executable.Name)"
+              Copy-Item -Path "$executable" -Destination "isolated/$($executable.BaseName)-$versionBuild.exe"
+            }
+          }
+
+      - name: List executables
+        run: |
+          dir isolated
+
+      - name: Azure login
+        uses: azure/login@532459ea530d8321f2fb9bb10d1e0bcf23869a43 # v3.0.0
+        with:
+          creds: >-
+            {
+              "clientId": "${{ secrets.WINDOWS_SIGNING_AZURE_CLIENT_ID }}",
+              "clientSecret": "${{ secrets.WINDOWS_SIGNING_AZURE_CLIENT_SECRET_VALUE }}",
+              "subscriptionId": "${{ secrets.WINDOWS_SIGNING_AZURE_SUBSCRIPTION_ID }}",
+              "tenantId": "${{ secrets.WINDOWS_SIGNING_AZURE_TENANT_ID }}"
+            }
+
+      - name: Sign files with Artifact Signing
+        uses: azure/artifact-signing-action@b443cf8ea4124818d2ea9f043cba29fc3ec47b16 # v1.2.0
+        with:
+          endpoint: ${{ secrets.WINDOWS_SIGNING_ENDPOINT }}
+          signing-account-name: ${{ secrets.WINDOWS_SIGNING_ACCOUNT_NAME }}
+          certificate-profile-name: ${{ secrets.WINDOWS_SIGNING_PROFILE_NAME }}
+          files-folder: ${{ github.workspace }}\isolated
+          files-folder-filter: exe
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Verify signatures
+        run: |
+          $exitCode = 0
+          foreach ($executable in (Get-ChildItem "isolated/*.exe")) {
+            Write-Host "******************************************"
+            Write-Host $executable.Name
+            Write-Host "******************************************"
+            $sig = Get-AuthenticodeSignature -FilePath $executable.FullName
+            $sig | Format-List * | Out-String | Write-Host
+            if ($sig.Status -ne 'Valid') {
+              Write-Error "CRITICAL: Signature verification failed for $($executable.Name)!"
+              $exitCode = 1
+            }
+          }
+          exit $exitCode
+
+      - name: Generate SHA256 files
+        run: |
+          foreach ($executable in (Get-ChildItem "isolated/*.exe")) {
+            $hashObject = Get-FileHash $executable.FullName
+            $hashObject.Hash | Out-File -FilePath "$($executable.FullName).sha256"
+            Write-Host "SHA256($($executable.Name)): $($hashObject.Hash)"
+          }
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: conda-launchers-signed
+          path: |
+            ./isolated/*.exe
+            ./isolated/*.sha256
+
+      - name: Upload to release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_EVENT_RELEASE_TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          gh release upload "$env:GITHUB_EVENT_RELEASE_TAG_NAME" (Get-Item ./isolated/*.exe).FullName (Get-Item ./isolated/*.sha256).FullName
