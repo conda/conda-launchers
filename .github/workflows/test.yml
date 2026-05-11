@@ -248,6 +248,7 @@ jobs:
           name: conda-launchers-signed
           path: |
             ./isolated/*.exe
+            ./isolated/*.sha256
 
       - name: Upload to release
         if: github.event_name == 'release'
@@ -255,4 +256,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_EVENT_RELEASE_TAG_NAME: ${{ github.event.release.tag_name }}
         run: |
-          gh release upload "$env:GITHUB_EVENT_RELEASE_TAG_NAME" (Get-Item ./isolated/*.exe).FullName
+          gh release upload "$env:GITHUB_EVENT_RELEASE_TAG_NAME" (Get-Item ./isolated/*.exe).FullName (Get-Item ./isolated/*.sha256).FullName
