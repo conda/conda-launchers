@@ -1,0 +1,122 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write        # create GitHub releases
+  id-token: write        # sigstore OIDC token
+  attestations: write    # GitHub artifact attestations
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # ── Step 1: Build all launchers via the reusable build workflow ─────────
+  build:
+    uses: ./.github/workflows/build.yml
+
+  # ── Step 2: Create GitHub Release with attestation & checksums ─────────
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Download all launcher artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: conda-launchers-all
+          path: release-assets/
+
+      - name: Display release assets
+        run: ls -lhR release-assets/
+
+      # ── Sigstore attestation for each binary ──────────────────────────
+      - name: Attest cli-32.exe
+        uses: actions/attest-build-provenance@ef244123eb79f2f7a7e75d99086184180e6d0018 # v2.1.0
+        with:
+          subject-path: release-assets/cli-32.exe
+
+      - name: Attest cli-64.exe
+        uses: actions/attest-build-provenance@ef244123eb79f2f7a7e75d99086184180e6d0018 # v2.1.0
+        with:
+          subject-path: release-assets/cli-64.exe
+
+      - name: Attest cli-arm64.exe
+        uses: actions/attest-build-provenance@ef244123eb79f2f7a7e75d99086184180e6d0018 # v2.1.0
+        with:
+          subject-path: release-assets/cli-arm64.exe
+
+      - name: Attest gui-32.exe
+        uses: actions/attest-build-provenance@ef244123eb79f2f7a7e75d99086184180e6d0018 # v2.1.0
+        with:
+          subject-path: release-assets/gui-32.exe
+
+      - name: Attest gui-64.exe
+        uses: actions/attest-build-provenance@ef244123eb79f2f7a7e75d99086184180e6d0018 # v2.1.0
+        with:
+          subject-path: release-assets/gui-64.exe
+
+      - name: Attest gui-arm64.exe
+        uses: actions/attest-build-provenance@ef244123eb79f2f7a7e75d99086184180e6d0018 # v2.1.0
+        with:
+          subject-path: release-assets/gui-arm64.exe
+
+      - name: Attest SHA256SUMS.txt
+        uses: actions/attest-build-provenance@ef244123eb79f2f7a7e75d99086184180e6d0018 # v2.1.0
+        with:
+          subject-path: release-assets/SHA256SUMS.txt
+
+      # ── Create the release ────────────────────────────────────────────
+      #  • Uses GitHub's immutable release tag feature (the tag is already
+      #    pushed, and we set make_latest + generate_release_notes).
+      #  • Uploads all .exe files + SHA256SUMS.txt as release assets.
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@7b4da11513bf3f43f9999e90eabced41ab8bb048 # v2.2.0
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "conda-launchers ${{ github.ref_name }}"
+          body: |
+            ## conda-launchers ${{ github.ref_name }}
+
+            Windows Python entry-point launchers for the conda ecosystem.
+
+            ### Included binaries
+
+            | File | Architecture | Type |
+            |------|-------------|------|
+            | `cli-32.exe` | x86 (32-bit) | Console |
+            | `cli-64.exe` | x86_64 (64-bit) | Console |
+            | `cli-arm64.exe` | aarch64 (ARM64) | Console |
+            | `gui-32.exe` | x86 (32-bit) | GUI (pythonw) |
+            | `gui-64.exe` | x86_64 (64-bit) | GUI (pythonw) |
+            | `gui-arm64.exe` | aarch64 (ARM64) | GUI (pythonw) |
+
+            ### Verification
+
+            Each binary has a [sigstore build provenance attestation](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds).
+            You can verify any binary with:
+
+            ```bash
+            gh attestation verify <file> --repo ${{ github.repository }}
+            ```
+
+            SHA256 checksums are available in `SHA256SUMS.txt`.
+          draft: false
+          prerelease: false
+          make_latest: true
+          generate_release_notes: true
+          files: |
+            release-assets/cli-32.exe
+            release-assets/cli-64.exe
+            release-assets/cli-arm64.exe
+            release-assets/gui-32.exe
+            release-assets/gui-64.exe
+            release-assets/gui-arm64.exe
+            release-assets/SHA256SUMS.txt

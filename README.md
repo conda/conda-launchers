@@ -62,6 +62,43 @@ In April 2024, the files were committed again after being `codesign`ed by Anacon
 
 This repository now collects all those sources and suggests a way to package them as a conda package for easy reutilization.
 
+## Automated builds & releases
+
+All launcher binaries are built automatically in GitHub Actions using Zig as a
+cross-compiler. Every push to `main` and every pull request triggers the
+**Build Launchers** workflow which produces:
+
+| Binary | Architecture | Type |
+|--------|-------------|------|
+| `cli-32.exe` | x86 (32-bit) | Console |
+| `cli-64.exe` | x86_64 (64-bit) | Console |
+| `cli-arm64.exe` | aarch64 (ARM64) | Console |
+| `gui-32.exe` | x86 (32-bit) | GUI |
+| `gui-64.exe` | x86_64 (64-bit) | GUI |
+| `gui-arm64.exe` | aarch64 (ARM64) | GUI |
+
+### Creating a release
+
+Push a semver tag to trigger the **Release** workflow:
+
+```bash
+git tag v24.7.2
+git push origin v24.7.2
+```
+
+The release workflow will:
+
+1. Build all six launcher binaries.
+2. Generate `SHA256SUMS.txt` checksums.
+3. Create [sigstore build-provenance attestations](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds) for every artifact.
+4. Publish an **immutable GitHub Release** with all assets attached.
+
+### Verifying attestations
+
+```bash
+gh attestation verify cli-arm64.exe --repo conda/conda-launchers
+```
+
 ## Debugging
 
 The launchers will provide some debugging information if the environment variable `PYLAUNCH_DEBUG=1` is set.
