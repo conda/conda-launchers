@@ -63,6 +63,9 @@ outputs:
           - set PYLAUNCH_DEBUG=1
           - cli-${{ arch_suffix }}
           - if not exist cli-${{ arch_suffix }}-results.txt exit 1
+        requirements:
+          run:
+            - python
 
 about:
   homepage: https://github.com/conda/conda-launchers
