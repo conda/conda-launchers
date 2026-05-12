@@ -75,6 +75,7 @@ ls -alh *.exe
 for f in *.exe; do
   echo "Generating script for $f..."
   cat > "${f%.*}-script.py" <<EOF
+#!python
 from pathlib import Path
 
 print("$f successfully launched the accompanying Python script")
@@ -84,6 +85,7 @@ done
 
 echo "Generating pyw for gui-${_ARCH}.exe..."
 cat > gui-${_ARCH}-script.pyw <<'EOF'
+#!python
 import tkinter as tk
 root = tk.Tk()
 text = tk.Label(root, text ="Hello and Bye!")
