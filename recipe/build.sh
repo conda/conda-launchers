@@ -58,7 +58,7 @@ for _TYPE in cli gui; do
   #  to be run from Scripts which does not have vcruntime140.dll.
   #  Also we cannot assume that vcruntime140.dll is found in the system.
   if [[ "${c_compiler}" == vs* ]]; then
-    cl.exe -D NDEBUG -D "WIN32_LEAN_AND_MEAN" ${CPPFLAGS} -ZI -Gy -MT launcher.c -Os -link -MACHINE:${_CL_MACHINE} ${LDFLAGS} resources-${_ARCH}.res user32.lib version.lib advapi32.lib shell32.lib -out:${_TYPE}-${_ARCH}.exe
+    cl.exe -DSCRIPT_WRAPPER -D NDEBUG -D "WIN32_LEAN_AND_MEAN" ${CPPFLAGS} -ZI -Gy -MT launcher.c -Os -link -MACHINE:${_CL_MACHINE} ${LDFLAGS} resources-${_ARCH}.res user32.lib version.lib advapi32.lib shell32.lib -out:${_TYPE}-${_ARCH}.exe
   else
     ${CC} -O2 -DSCRIPT_WRAPPER -DUNICODE -D_UNICODE -DMINGW_HAS_SECURE_API -DMAXINT=INT_MAX ${CPPFLAGS} \
       ${SRC_DIR}/launcher.c -c -o ${_TYPE}-${_ARCH}.o
