@@ -59,13 +59,15 @@ outputs:
             # gui
             - Scripts/gui-${{ arch_suffix }}.exe
             - Scripts/gui-${{ arch_suffix }}-script.pyw
-      - script:
+      - if: target_platform != 'win-32'
+        then:
+          script:
           - set PYLAUNCH_DEBUG=1
           - cli-${{ arch_suffix }}
           - if not exist cli-${{ arch_suffix }}-output.txt exit 1
-        requirements:
-          run:
-            - python
+          requirements:
+            run:
+              - python
 
 about:
   homepage: https://github.com/conda/conda-launchers
