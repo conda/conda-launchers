@@ -1,6 +1,6 @@
 context:
   version: "24.7.1"
-  build_number: 3
+  build_number: 4
   arch_suffix : ${{ target_platform | split ("-") | last }}
 
 recipe:
@@ -59,11 +59,10 @@ outputs:
             # gui
             - Scripts/gui-${{ arch_suffix }}.exe
             - Scripts/gui-${{ arch_suffix }}-script.pyw
-      # TODO: Enable execution tests
-      # - script:
-      #     - set PYLAUNCH_DEBUG=1
-      #     - cli-${{ arch_suffix }}
-      #     - if not exist cli-${{ arch_suffix }}-results.txt exit 1
+      - script:
+          - set PYLAUNCH_DEBUG=1
+          - cli-${{ arch_suffix }}
+          - if not exist cli-${{ arch_suffix }}-results.txt exit 1
 
 about:
   homepage: https://github.com/conda/conda-launchers
