@@ -12,6 +12,6 @@ c_stdlib:
 # Enable once we figure it out. It requires using %ZIG%
 # instead of `zig`, among other changes.
 c_compiler_version:
-  - "0.16.0"
+  - "0.15.2"
 c_stdlib_version:
-  - "0.16.0"
+  - "0.15.2"
