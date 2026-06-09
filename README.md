@@ -39,7 +39,7 @@ pixi run rattler-build build ^
 
 ## Releases
 
-`conda-launchers` follows a `YY.MM.MICRO-BUILD` CalVer scheme. The `YY.MM.MICRO` was initially seeded from `conda-build`, where the patches and scripts used to live; subsequent releases will stick to the release month. The `BUILDNUM` component is taken from the build number in `recipe/recipe.yaml`.
+`conda-launchers` follows a `YY.MM.MICRO-BUILD` CalVer scheme. The `YY.MM.MICRO` was initially seeded from `conda-build`, where the patches and scripts used to live; subsequent releases will stick to the release month. The `BUILD` component is taken from the build number in `recipe/recipe.yaml`.
 
 You only need to create a new Release via the Github UI. This will trigger a new build in Github Actions that will:
 
