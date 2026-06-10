@@ -1,0 +1,117 @@
+name: Build Launchers
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_call:
+    outputs:
+      artifact-name:
+        description: "Name of the uploaded build artifact"
+        value: "conda-launchers-all"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  ZIG_VERSION: "0.13.0"
+
+jobs:
+  build:
+    name: Build ${{ matrix.exe_type }}-${{ matrix.arch }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86, x86_64, aarch64]
+        exe_type: [cli, gui]
+        include:
+          - arch: x86
+            zig_target: x86-windows-gnu
+            suffix: "32"
+          - arch: x86_64
+            zig_target: x86_64-windows-gnu
+            suffix: "64"
+          - arch: aarch64
+            zig_target: aarch64-windows-gnu
+            suffix: "arm64"
+          - exe_type: cli
+            gui_flag: "false"
+          - exe_type: gui
+            gui_flag: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Zig
+        uses: mlugg/setup-zig@a84e2efe7f7bba42dc0a2e498e6e8e8e498467a5 # v2.0.1
+        with:
+          version: ${{ env.ZIG_VERSION }}
+
+      - name: Download and patch launcher source
+        shell: bash
+        run: |
+          curl -fsSL -o launcher.c \
+            "https://raw.githubusercontent.com/python/cpython/3.7/PC/launcher.c"
+          # Verify checksum
+          echo "a3167e5908cefa942f63e0de5c6ec7a929e8ca82a382537ab8292e5aaa82ca2e  launcher.c" | sha256sum -c -
+          # Apply the conda patch
+          patch -p0 < src/cpython-launcher-c-mods-for-setuptools.3.7.patch
+          # Move patched file into src/ so zig build can find it
+          mv launcher.c src/launcher.c
+
+      - name: Build ${{ matrix.exe_type }}-${{ matrix.suffix }}
+        shell: bash
+        working-directory: src
+        run: |
+          zig build \
+            -Doptimize=ReleaseSmall \
+            -Dtarget=${{ matrix.zig_target }} \
+            -Dgui=${{ matrix.gui_flag }}
+          ls -lh zig-out/bin/
+
+      - name: Rename artifact
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          cp src/zig-out/bin/${{ matrix.exe_type }}-${{ matrix.suffix }}.exe \
+             artifacts/${{ matrix.exe_type }}-${{ matrix.suffix }}.exe
+
+      - name: Upload individual artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ matrix.exe_type }}-${{ matrix.suffix }}
+          path: artifacts/${{ matrix.exe_type }}-${{ matrix.suffix }}.exe
+          if-no-files-found: error
+
+  collect:
+    name: Collect all launchers
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          path: all-launchers
+          pattern: "*"
+          merge-multiple: true
+
+      - name: Generate checksums
+        shell: bash
+        working-directory: all-launchers
+        run: |
+          sha256sum *.exe | tee SHA256SUMS.txt
+
+      - name: Upload combined artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: conda-launchers-all
+          path: all-launchers/
+          if-no-files-found: error
