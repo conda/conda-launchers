@@ -58,7 +58,9 @@ outputs:
         - pip
         - hatchling
       run:
-        - python
+        - if: target_platform != 'win-32'
+          then:
+            - python
 
     tests:
       - package_contents:
@@ -73,13 +75,15 @@ outputs:
             - Lib/site-packages/conda_launchers/__init__.py
             - Lib/site-packages/conda_launchers/paths.py
             - Lib/site-packages/conda_launchers-${{ version }}.dist-info/METADATA
-      - script:
-          - >-
-            python -c "from conda_launchers import get_launcher_short_paths;
-            assert get_launcher_short_paths() == {'win-32':'Scripts/cli-32.exe','win-64':'Scripts/cli-64.exe','win-arm64':'Scripts/cli-arm64.exe'}"
-        requirements:
-          run:
-            - python
+      - if: target_platform != 'win-32'
+        then:
+          script:
+            - >-
+              python -c "from conda_launchers import get_launcher_short_paths;
+              assert get_launcher_short_paths() == {'win-32':'Scripts/cli-32.exe','win-64':'Scripts/cli-64.exe','win-arm64':'Scripts/cli-arm64.exe'}"
+          requirements:
+            run:
+              - python
       - if: target_platform != 'win-32'
         then:
           script:
