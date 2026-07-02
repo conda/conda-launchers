@@ -37,7 +37,7 @@ outputs:
             - call "%RECIPE_DIR%\build-zig.bat"
           else:
             - call "%RECIPE_DIR%\build-sh.bat"
-        - python -m pip install . --no-deps --no-build-isolation -vv
+        - python -m pip install . --prefix "%PREFIX%" --no-deps --no-build-isolation --no-compile -vv
       variant:
         down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs' else 0 }}
 
@@ -54,7 +54,6 @@ outputs:
             - ${{ compiler("c") }}
             - ${{ stdlib("c") }}
         - m2-patch
-      host:
         - python
         - pip
         - hatchling
