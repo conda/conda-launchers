@@ -67,7 +67,13 @@ You only need to create a new Release via the Github UI. This will trigger a new
 * Extract the `*.exe` files within, and sign them with Azure Code Signing.
 * Upload the signed executables to the Release Assets.
 
-The `conda-canary` channel does NOT ship signed binaries. They are only meant to support development workflows in this repository. Unless (re-)signing is an option, distributors would probably want to binary-repackage the Releases Assets directly.
+The `conda-canary` channel does NOT ship signed binaries. They are only meant
+to support development workflows in this repository. Release assets are signed
+with the certificate configured for this repository's release workflow.
+Distributors that need a different signer should build from the same source
+release, sign the generated `Scripts/*.exe` files in their own packaging
+pipeline, and package those signed launchers with the same filenames and Python
+API contract.
 
 ## History
 

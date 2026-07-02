@@ -63,6 +63,23 @@ def test_get_launcher_short_paths():
     }
 
 
+@pytest.mark.parametrize("subdir", get_supported_subdirs())
+@pytest.mark.parametrize("kind", ("cli", "gui"))
+def test_launcher_paths_cover_packaged_files(subdir: str, kind: str):
+    assert get_launcher_short_path(subdir, kind) == (
+        f"Scripts/{get_launcher_name(subdir, kind)}"
+    )
+    assert get_launcher_script_short_path(subdir, kind) == (
+        f"Scripts/{get_launcher_script_name(subdir, kind)}"
+    )
+    assert get_launcher_path(subdir, kind, prefix=Path("prefix")).name == (
+        get_launcher_name(subdir, kind)
+    )
+    assert get_launcher_script_path(subdir, kind, prefix=Path("prefix")).name == (
+        get_launcher_script_name(subdir, kind)
+    )
+
+
 def test_get_launcher_path_uses_provided_prefix():
     prefix = Path("prefix")
 
