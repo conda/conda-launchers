@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Add a small importable `conda_launchers` API so downstream tools can discover
+  shipped launcher paths without duplicating the platform mapping.
+
 ## Previous changes in conda-build
 
 ### 2024-05-09 conda-build 24.5.0

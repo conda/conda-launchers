@@ -1,6 +1,6 @@
 context:
-  version: "24.7.1"
-  build_number: 5
+  version: "26.7.0"
+  build_number: 0
   arch_suffix : ${{ target_platform | split ("-") | last }}
 
 recipe:
@@ -32,7 +32,12 @@ outputs:
     build:
       string: ${{ hash }}_${{ c_compiler }}_${{ build_number }}
       script:
-        file: ${{ 'build-zig.bat' if c_compiler == 'zig' else 'build-sh.bat' }}
+        - if: c_compiler == 'zig'
+          then:
+            - call "%RECIPE_DIR%\build-zig.bat"
+          else:
+            - call "%RECIPE_DIR%\build-sh.bat"
+        - python -m pip install . --prefix "%PREFIX%" --no-deps --no-build-isolation --no-compile -vv
       variant:
         down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs' else 0 }}
 
@@ -49,6 +54,13 @@ outputs:
             - ${{ compiler("c") }}
             - ${{ stdlib("c") }}
         - m2-patch
+        - python
+        - pip
+        - hatchling
+      run:
+        - if: target_platform != 'win-32'
+          then:
+            - python
 
     tests:
       - package_contents:
@@ -59,6 +71,19 @@ outputs:
             # gui
             - Scripts/gui-${{ arch_suffix }}.exe
             - Scripts/gui-${{ arch_suffix }}-script.pyw
+            # Python API for downstream path discovery
+            - Lib/site-packages/conda_launchers/__init__.py
+            - Lib/site-packages/conda_launchers/paths.py
+            - Lib/site-packages/conda_launchers-${{ version }}.dist-info/METADATA
+      - if: target_platform != 'win-32'
+        then:
+          script:
+            - >-
+              python -c "from conda_launchers import get_launcher_short_paths;
+              assert get_launcher_short_paths() == {'win-32':'Scripts/cli-32.exe','win-64':'Scripts/cli-64.exe','win-arm64':'Scripts/cli-arm64.exe'}"
+          requirements:
+            run:
+              - python
       - if: target_platform != 'win-32'
         then:
           script:

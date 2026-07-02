@@ -14,6 +14,25 @@ These are the binaries that you can find next to all those `*-script.py` files i
 
 `conda` and `conda-build` will place an adequately renamed copy next to each [Python `console_scripts` entry point](https://packaging.python.org/en/latest/specifications/entry-points/#use-for-scripts) created.
 
+## Finding launcher paths
+
+The package also ships a small Python API so downstream tools can discover the
+launcher paths without copying the platform mapping:
+
+```python
+from conda_launchers import get_launcher_path, get_launcher_short_path
+
+short_path = get_launcher_short_path("win-64")
+# "Scripts/cli-64.exe"
+
+launcher = get_launcher_path("win-64", prefix=prefix)
+# Path(prefix) / "Scripts" / "cli-64.exe"
+```
+
+Use `get_launcher_short_path()` when comparing against conda package metadata,
+which stores paths with `/` separators. Use `get_launcher_path()` when you have
+already chosen the prefix whose installed launcher should be used.
+
 ## How to build
 
 Different compiler stacks will generate different binaries. Since these launcher executables
@@ -48,7 +67,13 @@ You only need to create a new Release via the Github UI. This will trigger a new
 * Extract the `*.exe` files within, and sign them with Azure Code Signing.
 * Upload the signed executables to the Release Assets.
 
-The `conda-canary` channel does NOT ship signed binaries. They are only meant to support development workflows in this repository. Unless (re-)signing is an option, distributors would probably want to binary-repackage the Releases Assets directly.
+The `conda-canary` channel does NOT ship signed binaries. They are only meant
+to support development workflows in this repository. Release assets are signed
+with the certificate configured for this repository's release workflow.
+Distributors that need a different signer should build from the same source
+release, sign the generated `Scripts/*.exe` files in their own packaging
+pipeline, and package those signed launchers with the same filenames and Python
+API contract.
 
 ## History
 

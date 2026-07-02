@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "conda-launchers"
+version = "26.7.0"
+description = "Conda's Windows launchers for Python entry points"
+requires-python = ">=3.9"
+license = "Python-2.0 AND BSD-3-Clause"
+
+[project.urls]
+repository = "https://github.com/conda/conda-launchers"
+
+[tool.hatch.build.targets.wheel]
+packages = ["conda_launchers"]
