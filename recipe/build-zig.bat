@@ -33,10 +33,6 @@ if %ERRORLEVEL% neq 0 exit 1
 zig build -Doptimize=ReleaseSmall -Dtarget=%ZIG_TARGET% -Dgui=true --prefix-exe-dir "%PREFIX%\Scripts"
 if %ERRORLEVEL% neq 0 exit 1
 
-mkdir "%PREFIX%\Lib\site-packages"
-xcopy "%SRC_DIR%\conda_launchers" "%PREFIX%\Lib\site-packages\conda_launchers\" /E /I /Y
-if %ERRORLEVEL% neq 0 exit 1
-
 @rem install launcher scripts
 cd "%PREFIX%\Scripts"
 (

@@ -32,7 +32,12 @@ outputs:
     build:
       string: ${{ hash }}_${{ c_compiler }}_${{ build_number }}
       script:
-        file: ${{ 'build-zig.bat' if c_compiler == 'zig' else 'build-sh.bat' }}
+        - if: c_compiler == 'zig'
+          then:
+            - call "%RECIPE_DIR%\build-zig.bat"
+          else:
+            - call "%RECIPE_DIR%\build-sh.bat"
+        - python -m pip install . --no-deps --no-build-isolation -vv
       variant:
         down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs' else 0 }}
 
@@ -49,6 +54,12 @@ outputs:
             - ${{ compiler("c") }}
             - ${{ stdlib("c") }}
         - m2-patch
+      host:
+        - python
+        - pip
+        - hatchling
+      run:
+        - python
 
     tests:
       - package_contents:
@@ -62,6 +73,7 @@ outputs:
             # Python API for downstream path discovery
             - Lib/site-packages/conda_launchers/__init__.py
             - Lib/site-packages/conda_launchers/paths.py
+            - Lib/site-packages/conda_launchers-${{ version }}.dist-info/METADATA
       - script:
           - >-
             python -c "from conda_launchers import get_launcher_short_paths;
