@@ -1,6 +1,6 @@
 context:
-  version: "24.7.1"
-  build_number: 6
+  version: "26.7.0"
+  build_number: 0
   arch_suffix : ${{ target_platform | split ("-") | last }}
 
 recipe:
