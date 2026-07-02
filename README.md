@@ -14,6 +14,25 @@ These are the binaries that you can find next to all those `*-script.py` files i
 
 `conda` and `conda-build` will place an adequately renamed copy next to each [Python `console_scripts` entry point](https://packaging.python.org/en/latest/specifications/entry-points/#use-for-scripts) created.
 
+## Finding launcher paths
+
+The package also ships a small Python API so downstream tools can discover the
+launcher paths without copying the platform mapping:
+
+```python
+from conda_launchers import get_launcher_path, get_launcher_short_path
+
+short_path = get_launcher_short_path("win-64")
+# "Scripts/cli-64.exe"
+
+launcher = get_launcher_path("win-64", prefix=prefix)
+# Path(prefix) / "Scripts" / "cli-64.exe"
+```
+
+Use `get_launcher_short_path()` when comparing against conda package metadata,
+which stores paths with `/` separators. Use `get_launcher_path()` when you have
+already chosen the prefix whose installed launcher should be used.
+
 ## How to build
 
 Different compiler stacks will generate different binaries. Since these launcher executables

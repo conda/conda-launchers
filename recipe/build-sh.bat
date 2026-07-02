@@ -19,6 +19,10 @@ copy !RECIPE_DIR!\build.sh .
 bash build.sh
 IF !ERRORLEVEL! NEQ 0 exit 1
 
+mkdir "!PREFIX_BAK!\Lib\site-packages"
+xcopy "!SRC_DIR!\conda_launchers" "!PREFIX_BAK!\Lib\site-packages\conda_launchers\" /E /I /Y
+IF !ERRORLEVEL! NEQ 0 exit 1
+
 xcopy cli-*.exe "!PREFIX_BAK!\Scripts\" /Y
 xcopy cli-*.py "!PREFIX_BAK!\Scripts\" /Y
 xcopy gui-*.exe "!PREFIX_BAK!\Scripts\" /Y
