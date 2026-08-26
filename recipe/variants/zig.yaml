@@ -3,6 +3,6 @@ c_compiler:
 c_stdlib:
   - zig
 c_compiler_version:
-  - "0.15.2"
+  - "0.16.0"
 c_stdlib_version:
-  - "0.15.2"
+  - "0.16.0"
