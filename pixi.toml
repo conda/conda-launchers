@@ -7,7 +7,8 @@ platforms = ["win-64"]
 license = "BSD-3-Clause"
 
 [dependencies]
-rattler-build = "*"
+# >=0.69 for conditional noarch support (prefix-dev/rattler-build#2626)
+rattler-build = ">=0.69"
 
 [feature.extract.dependencies]
 conda-package-handling = "*"
