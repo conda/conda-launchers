@@ -112,32 +112,67 @@ jobs:
       - name: Download All Artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          path: output
+          path: artifacts
           pattern: conda-launchers-builds-*
-          merge-multiple: true
 
       - name: Setup Pixi
         uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
         with:
           cache: false
+          environments: default extract
 
       - name: Pixi info
         run: |
           pixi info
           pixi list
+          pixi list -e extract
 
       - name: List artifacts
         run: |
-          dir output
+          dir artifacts -Recurse
+
+      - name: Stage launchers for repackaging
+        run: |
+          mkdir recipe\staged
+          mkdir extracted
+          $selections = @(
+            @{ Folder = "conda-launchers-builds-zig-win-32"; Arch = "32" },
+            @{ Folder = "conda-launchers-builds-gcc-win-64"; Arch = "64" },
+            @{ Folder = "conda-launchers-builds-vs-win-arm64"; Arch = "arm64" }
+          )
+          foreach ($sel in $selections) {
+            $package = Get-ChildItem "artifacts/$($sel.Folder)/conda-launchers-*.conda" | Select-Object -First 1
+            Write-Host "Extracting $($package.Name)..."
+            pixi run -e extract cph x $package.FullName --prefix extracted
+            foreach ($kind in @("cli", "gui")) {
+              $exe = "$kind-$($sel.Arch).exe"
+              Copy-Item "extracted/$($package.BaseName)/Scripts/$exe" "recipe/staged/$exe"
+            }
+          }
+          dir recipe\staged
+
+      - name: Build noarch package
+        run: |
+          pixi run rattler-build build `
+          --recipe recipe `
+          --ignore-recipe-variants `
+          --variant-config recipe\variants\repackage.yaml `
+          --target-platform win-64 `
+          --log-style plain `
+          --skip-existing all `
+          --channel conda-forge `
+          --extra-meta flow_run_id="github_$GITHUB_RUN_ID" `
+          --extra-meta remote_url="https://github.com/$GITHUB_REPOSITORY" `
+          --extra-meta sha="$GITHUB_SHA"
 
       - name: Upload to Anaconda
         env:
           # rattler-build upload knows how to take auth from these env vars
           ANACONDA_OWNER: conda-canary
-          ANACONDA_CHANNEL: conda-launchers_dev
+          ANACONDA_CHANNEL: dev
           ANACONDA_API_KEY: ${{ secrets.ANACONDA_ORG_CONDA_CANARY_TOKEN }}
         run: |
-          pixi run rattler-build upload anaconda --log-style plain (Get-Item ./output/conda-launchers*.conda).FullName
+          pixi run rattler-build upload anaconda --log-style plain (Get-Item ./output/noarch/conda-launchers*.conda).FullName
 
   sign-to-releases:
     name: Sign & Release

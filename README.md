@@ -44,11 +44,17 @@ pixi run rattler-build build ^
 You only need to create a new Release via the Github UI. This will trigger a new build in Github Actions that will:
 
 * Build all launchers from source as conda packages.
-* Upload them to the `conda-canary` channel and CI artifacts.
+* Repackage the executables into a single `noarch` package (see [Packaging](#packaging)) and upload it to the `conda-canary` channel.
 * Extract the `*.exe` files within, and sign them with Azure Code Signing.
 * Upload the signed executables to the Release Assets.
 
 The `conda-canary` channel does NOT ship signed binaries. They are only meant to support development workflows in this repository. Unless (re-)signing is an option, distributors would probably want to binary-repackage the Releases Assets directly.
+
+## Packaging
+
+The per-compiler matrix packages are only an artifact transport. CI extracts the executables from three of them (zig for `win-32`, gcc for `win-64`, vs2022 for `win-arm64`) and repackages them into a single `noarch` package — same recipe, driven by `recipe/variants/repackage.yaml` — that installs all six launchers under `share/conda-launchers/`. This mirrors the layout produced by the [conda-forge feedstock](https://github.com/conda-forge/conda-launchers-feedstock) and is what `conda` expects at runtime.
+
+Note that the conda-forge feedstock pins the Release Asset names and their sha256 checksums. Any change to the matrix build strings (`<hash>_<compiler>_<build_number>`), the per-architecture compiler assignments, or the release tag format (`<version>-<build_number>`) requires a coordinated feedstock PR.
 
 ## History
 

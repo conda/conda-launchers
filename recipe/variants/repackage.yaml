@@ -1,0 +1,8 @@
+repackage:
+  - true
+# Placeholders so the existing ${{ c_compiler }} / compiler() / stdlib()
+# references keep rendering; unused in repackage mode.
+c_compiler:
+  - zig
+c_stdlib:
+  - zig
