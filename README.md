@@ -52,7 +52,7 @@ The `conda-canary` channel does NOT ship signed binaries. They are only meant to
 
 ## Packaging
 
-The per-compiler matrix packages are only an artifact transport. CI extracts the executables from three of them (zig for `win-32`, gcc for `win-64`, vs2022 for `win-arm64`) and repackages them into a single `noarch` package — same recipe, driven by `recipe/variants/repackage.yaml` — that installs all six launchers under `share/conda-launchers/`. This mirrors the layout produced by the [conda-forge feedstock](https://github.com/conda-forge/conda-launchers-feedstock) and is what `conda` expects at runtime.
+The per-compiler build matrix is for releasing new signed versions of the launchers. For packaging, the CI extracts the executables from three of them (zig for `win-32`, gcc for `win-64`, vs2022 for `win-arm64`) and repackages them into a single `noarch` package. This is driven by `recipe/variants/repackage.yaml` which installs all six launchers under `share/conda-launchers/`. Here we mirror the layout produced by the [conda-forge feedstock](https://github.com/conda-forge/conda-launchers-feedstock) and is what `conda` expects at runtime.
 
 Note that the conda-forge feedstock pins the Release Asset names and their sha256 checksums. Any change to the matrix build strings (`<hash>_<compiler>_<build_number>`), the per-architecture compiler assignments, or the release tag format (`<version>-<build_number>`) requires a coordinated feedstock PR.
 
