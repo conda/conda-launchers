@@ -19,8 +19,8 @@ copy !RECIPE_DIR!\build.sh .
 bash build.sh
 IF !ERRORLEVEL! NEQ 0 exit 1
 
-xcopy cli-*.exe "!PREFIX_BAK!\Scripts\" /Y
-xcopy cli-*.py "!PREFIX_BAK!\Scripts\" /Y
-xcopy gui-*.exe "!PREFIX_BAK!\Scripts\" /Y
-xcopy gui-*.py "!PREFIX_BAK!\Scripts\" /Y
-xcopy gui-*.pyw "!PREFIX_BAK!\Scripts\" /Y
+xcopy cli-*.exe "!PREFIX_BAK!\share\conda-launchers\" /Y
+xcopy cli-*.py "!PREFIX_BAK!\share\conda-launchers\" /Y
+xcopy gui-*.exe "!PREFIX_BAK!\share\conda-launchers\" /Y
+xcopy gui-*.py "!PREFIX_BAK!\share\conda-launchers\" /Y
+xcopy gui-*.pyw "!PREFIX_BAK!\share\conda-launchers\" /Y

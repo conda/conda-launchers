@@ -58,33 +58,21 @@ outputs:
             - m2-patch
 
     tests:
-      - if: repackage | default(false)
-        then:
-          package_contents:
-            strict: true
-            files:
-              # cli
-              - share/conda-launchers/cli-32.exe
-              - share/conda-launchers/cli-64.exe
-              - share/conda-launchers/cli-arm64.exe
-              # gui
-              - share/conda-launchers/gui-32.exe
-              - share/conda-launchers/gui-64.exe
-              - share/conda-launchers/gui-arm64.exe
-        else:
-          package_contents:
-            files:
-              # cli
-              - Scripts/cli-${{ arch_suffix }}.exe
-              - Scripts/cli-${{ arch_suffix }}-script.py
-              # gui
-              - Scripts/gui-${{ arch_suffix }}.exe
-              - Scripts/gui-${{ arch_suffix }}-script.pyw
+      - package_contents:
+          files:
+            # cli
+            - share/conda-launchers/cli-32.exe
+            - share/conda-launchers/cli-64.exe
+            - share/conda-launchers/cli-arm64.exe
+            # gui
+            - share/conda-launchers/gui-32.exe
+            - share/conda-launchers/gui-64.exe
+            - share/conda-launchers/gui-arm64.exe
       - if: target_platform != 'win-32' and not (repackage | default(false))
         then:
           script:
           - set PYLAUNCH_DEBUG=1
-          - cli-${{ arch_suffix }}
+          - call "%PREFIX%\\share\\conda-launchers\\cli-${{ arch_suffix }}.exe"
           - if not exist cli-${{ arch_suffix }}-output.txt exit 1
           requirements:
             run:

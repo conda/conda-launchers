@@ -146,7 +146,7 @@ jobs:
             pixi run -e extract cph x $package.FullName --prefix extracted
             foreach ($kind in @("cli", "gui")) {
               $exe = "$kind-$($sel.Arch).exe"
-              Copy-Item "extracted/$($package.BaseName)/Scripts/$exe" "recipe/staged/$exe"
+              Copy-Item "extracted/$($package.BaseName)/share/conda-launchers/$exe" "recipe/staged/$exe"
             }
           }
           dir recipe\staged
@@ -222,7 +222,7 @@ jobs:
             $versionBuild = $artifact.BaseName -replace "conda-launchers-"
             pixi run -e extract cph x $artifact.FullName --prefix "extracted"
             Write-Host "Isolating launchers..."
-            foreach ($executable in (Get-ChildItem "extracted/$($artifact.BaseName)/Scripts/*-*.exe")) {
+            foreach ($executable in (Get-ChildItem "extracted/$($artifact.BaseName)/share/conda-launchers/*-*.exe")) {
               Write-Host "  $($executable.Name)"
               Copy-Item -Path "$executable" -Destination "isolated/$($executable.BaseName)-$versionBuild.exe"
             }
