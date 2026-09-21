@@ -19,6 +19,7 @@ copy !RECIPE_DIR!\build.sh .
 bash build.sh
 IF !ERRORLEVEL! NEQ 0 exit 1
 
+mkdir "!PREFIX_BAK!\share\conda-launchers"
 xcopy cli-*.exe "!PREFIX_BAK!\share\conda-launchers\" /Y
 xcopy cli-*.py "!PREFIX_BAK!\share\conda-launchers\" /Y
 xcopy gui-*.exe "!PREFIX_BAK!\share\conda-launchers\" /Y
