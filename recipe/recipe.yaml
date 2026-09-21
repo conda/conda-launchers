@@ -58,16 +58,27 @@ outputs:
             - m2-patch
 
     tests:
-      - package_contents:
-          files:
-            # cli
-            - share/conda-launchers/cli-32.exe
-            - share/conda-launchers/cli-64.exe
-            - share/conda-launchers/cli-arm64.exe
-            # gui
-            - share/conda-launchers/gui-32.exe
-            - share/conda-launchers/gui-64.exe
-            - share/conda-launchers/gui-arm64.exe
+      - if: repackage | default(false)
+        then:
+          package_contents:
+            files:
+              # cli
+              - share/conda-launchers/cli-32.exe
+              - share/conda-launchers/cli-64.exe
+              - share/conda-launchers/cli-arm64.exe
+              # gui
+              - share/conda-launchers/gui-32.exe
+              - share/conda-launchers/gui-64.exe
+              - share/conda-launchers/gui-arm64.exe
+        else:
+          package_contents:
+            files:
+              # cli
+              - share/conda-launchers/cli-${{ arch_suffix }}.exe
+              - share/conda-launchers/cli-${{ arch_suffix }}-script.py
+              # gui
+              - share/conda-launchers/gui-${{ arch_suffix }}.exe
+              - share/conda-launchers/gui-${{ arch_suffix }}-script.pyw
       - if: target_platform != 'win-32' and not (repackage | default(false))
         then:
           script:
