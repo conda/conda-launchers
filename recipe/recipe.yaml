@@ -81,9 +81,13 @@ outputs:
               - share/conda-launchers/gui-${{ arch_suffix }}-script.pyw
       - if: target_platform != 'win-32' and not (repackage | default(false))
         then:
+          # The launcher locates python.exe relative to its own directory,
+          # so copy it next to the env's real entry-point scripts first
           script:
           - set PYLAUNCH_DEBUG=1
-          - call "%PREFIX%\\share\\conda-launchers\\cli-${{ arch_suffix }}.exe"
+          - copy %PREFIX%\share\conda-launchers\cli-${{ arch_suffix }}.exe %PREFIX%\Scripts\
+          - copy %PREFIX%\share\conda-launchers\cli-${{ arch_suffix }}-script.py %PREFIX%\Scripts\
+          - cli-${{ arch_suffix }}
           - if not exist cli-${{ arch_suffix }}-output.txt exit 1
           requirements:
             run:
