@@ -39,14 +39,27 @@ pixi run rattler-build build ^
 
 ## Releases
 
-`conda-launchers` follows a `YY.MM.MICRO-BUILD` CalVer scheme. The `YY.MM.MICRO` was initially seeded from `conda-build`, where the patches and scripts used to live; subsequent releases will stick to the release month. The `BUILD` component is taken from the build number in `recipe/recipe.yaml`.
+`conda-launchers` follows a `YY.MM.MICRO-BUILD` CalVer scheme. The `YY.MM.MICRO` was initially seeded from `conda-build`, where the patches and scripts used to live. Subsequent releases will stick to the release month. The `BUILD` component is taken from the build number in `recipe/recipe.yaml`.
 
-You only need to create a new Release via the Github UI. This will trigger a new build in Github Actions that will:
+To release, update `context.version` and `context.build_number` in `recipe/recipe.yaml`, then tag the reviewed commit with `<version>-<build_number>` and push that tag. Do not create or publish the release in the GitHub UI first. The workflow checks that the tag matches the recipe and then:
 
-* Build all launchers from source as conda packages.
-* Repackage the executables into a single `noarch` package (see [Packaging](#packaging)) and upload it to the `conda-canary` channel.
-* Extract the `*.exe` files within, and sign them with Azure Code Signing.
-* Upload the signed executables to the Release Assets.
+1. Builds all six compiler/architecture variants as conda packages.
+2. Extracts the 12 executables, signs them with Azure Code Signing, verifies their Authenticode signatures, and generates SHA-256 files from the signed bytes.
+3. Saves the signed files in the `conda-launchers-signed` workflow artifact.
+4. Checks that all 12 executables and their matching checksum files are present, then attaches them to a new draft release.
+5. Publishes the draft only after every asset has been uploaded.
+
+Canary repackaging and upload run independently on pushes to `main` and release tags. A canary upload failure does not block the signed GitHub release.
+
+### Immutable releases
+
+This draft-first process addresses the [immutable-release request in #25](https://github.com/conda/conda-launchers/issues/25#issuecomment-4865131894), following the release workflows in [conda-sigstore](https://github.com/jezdez/conda-sigstore/blob/main/.github/workflows/release.yml) and [conda-sboms](https://github.com/conda-incubator/conda-sboms/blob/main/.github/workflows/release.yml).
+
+After this workflow is merged, a repository administrator must enable **Settings > General > Releases > Enable release immutability** before the next release. The setting locks assets and tags for future releases only. Existing releases are not changed. See [GitHub's immutable-release documentation](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases).
+
+If asset upload or publication fails, use **Re-run failed jobs** on the original workflow run. The upload job downloads the existing signed artifact rather than rebuilding or signing again. After a failed upload, it attempts to remove the draft it just created, leaving the tag and workflow artifact intact. If draft creation or cleanup fails, GitHub may still have a draft for the tag. Inspect it and remove only the incomplete, unpublished draft before retrying. If publication alone fails, retry that job with the populated draft in place. Existing releases are never automatically replaced.
+
+Do not rerun all jobs, replace published assets, or move a published tag. Corrections to published executables require a new version or build number and a new tag. Keep the existing asset naming scheme so downstream recipes can continue pinning filenames and checksums.
 
 The `conda-canary` channel does NOT ship signed binaries. They are only meant to support development workflows in this repository. Unless (re-)signing is an option, distributors would probably want to binary-repackage the Releases Assets directly.
 
