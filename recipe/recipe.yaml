@@ -19,6 +19,10 @@ source:
   - url: https://raw.githubusercontent.com/python/cpython/3.7/LICENSE
     sha256: 96e4f59524cde5af4a2ea837ef5e52b65e51f1f999825fd8a9ec3b444cb82aea
     file_name: cpython-LICENSE
+  - if: repackage | default(false)
+    then:
+      path: staged
+      use_gitignore: false
 
 build:
   number: ${{ build_number }}
@@ -30,11 +34,12 @@ outputs:
       name: conda-launchers
 
     build:
-      string: ${{ hash }}_${{ c_compiler }}_${{ build_number }}
+      noarch: ${{ "generic" if repackage | default(false) else none }}
+      string: ${{ hash }}_${{ "" if repackage | default(false) else c_compiler + "_" }}${{ build_number }}
       script:
-        file: ${{ 'build-zig.bat' if c_compiler == 'zig' else 'build-sh.bat' }}
+        file: ${{ 'build-repackage.bat' if repackage | default(false) else 'build-zig.bat' if c_compiler == 'zig' else 'build-sh.bat' }}
       variant:
-        down_prioritize_variant: ${{ 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs' else 0 }}
+        down_prioritize_variant: ${{ 0 if repackage | default(false) else 2 if c_compiler == 'zig' else 1 if c_compiler == 'vs' else 0 }}
 
     requirements:
       ignore_run_exports:
@@ -42,27 +47,46 @@ outputs:
           - ${{ compiler("c") }}
           - ${{ stdlib("c") }}
       build:
-        - if: c_compiler == 'zig'
+        - if: not (repackage | default(false))
           then:
-            - zig
-          else:
-            - ${{ compiler("c") }}
-            - ${{ stdlib("c") }}
-        - m2-patch
+            - if: c_compiler == 'zig'
+              then:
+                - zig
+              else:
+                - ${{ compiler("c") }}
+                - ${{ stdlib("c") }}
+            - m2-patch
 
     tests:
-      - package_contents:
-          files:
-            # cli
-            - Scripts/cli-${{ arch_suffix }}.exe
-            - Scripts/cli-${{ arch_suffix }}-script.py
-            # gui
-            - Scripts/gui-${{ arch_suffix }}.exe
-            - Scripts/gui-${{ arch_suffix }}-script.pyw
-      - if: target_platform != 'win-32'
+      - if: repackage | default(false)
         then:
+          package_contents:
+            files:
+              # cli
+              - share/conda-launchers/cli-32.exe
+              - share/conda-launchers/cli-64.exe
+              - share/conda-launchers/cli-arm64.exe
+              # gui
+              - share/conda-launchers/gui-32.exe
+              - share/conda-launchers/gui-64.exe
+              - share/conda-launchers/gui-arm64.exe
+        else:
+          package_contents:
+            files:
+              # cli
+              - share/conda-launchers/cli-${{ arch_suffix }}.exe
+              - share/conda-launchers/cli-${{ arch_suffix }}-script.py
+              # gui
+              - share/conda-launchers/gui-${{ arch_suffix }}.exe
+              - share/conda-launchers/gui-${{ arch_suffix }}-script.pyw
+      - if: target_platform != 'win-32' and not (repackage | default(false))
+        then:
+          # The launcher locates python.exe relative to its own directory,
+          # so copy it next to the env's real entry-point scripts first
           script:
           - set PYLAUNCH_DEBUG=1
+          - copy %PREFIX%\share\conda-launchers\cli-${{ arch_suffix }}.exe %PREFIX%\Scripts\
+          - copy %PREFIX%\share\conda-launchers\cli-${{ arch_suffix }}-script.py %PREFIX%\Scripts\
           - cli-${{ arch_suffix }}
           - if not exist cli-${{ arch_suffix }}-output.txt exit 1
           requirements:

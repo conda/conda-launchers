@@ -166,6 +166,8 @@ cython_debug/
 .pixi/
 # rattler-build output
 output/
+# launchers staged by CI for the repackage variant
+recipe/staged/
 
 # Zig
 .zig-cache/

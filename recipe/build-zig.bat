@@ -26,15 +26,15 @@ if %target_platform% == win-arm64 (
 @rem TODO: replace 'zig' with '%ZIG%' from 0.15.2 onwards
 
 @rem build cli launcher
-zig build -Doptimize=ReleaseSmall -Dtarget=%ZIG_TARGET% -Dgui=false --prefix-exe-dir "%PREFIX%\Scripts"
+zig build -Doptimize=ReleaseSmall -Dtarget=%ZIG_TARGET% -Dgui=false --prefix-exe-dir "%PREFIX%\share\conda-launchers"
 if %ERRORLEVEL% neq 0 exit 1
 
 @rem build gui launcher
-zig build -Doptimize=ReleaseSmall -Dtarget=%ZIG_TARGET% -Dgui=true --prefix-exe-dir "%PREFIX%\Scripts"
+zig build -Doptimize=ReleaseSmall -Dtarget=%ZIG_TARGET% -Dgui=true --prefix-exe-dir "%PREFIX%\share\conda-launchers"
 if %ERRORLEVEL% neq 0 exit 1
 
 @rem install launcher scripts
-cd "%PREFIX%\Scripts"
+cd "%PREFIX%\share\conda-launchers"
 (
 echo from pathlib import Path
 
